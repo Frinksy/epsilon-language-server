@@ -1,5 +1,6 @@
 package io.github.frinksy.epsilonls;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 // import org.eclipse.emf.ecore.resource.ResourceSet;
 // import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
+import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.lsp4j.DeclarationParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -71,6 +73,26 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         for (TextDocumentContentChangeEvent change : changes) {
             List<Diagnostic> diagnostics = diagnosticsService.generateDiagnostics(change.getText(), null);
             languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(docUri, diagnostics));
+        }
+
+        EolModule eolModule = new EolModule();
+        try {
+            eolModule.parse(((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText(), null);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+
+        // diagnosticsService.parseMetamodel("file:///path/to/metamodel.emf");
+
+
+        try {
+            diagnosticsService.executeModule(docUri, eolModule);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
     }
