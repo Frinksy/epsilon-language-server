@@ -3,10 +3,11 @@ package io.github.frinksy.epsilonls;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.lsp4j.DeclarationParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
@@ -34,20 +35,30 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 public class EpsilonLanguageTextDocumentService implements TextDocumentService {
 
     private EpsilonLanguageServer languageServer;
-    private EpsilonDiagnosticsService diagnosticsService;
+    private Map<String, EpsilonDocument> documents = new HashMap<>();
 
     public EpsilonLanguageTextDocumentService(EpsilonLanguageServer languageServer) {
         this.languageServer = languageServer;
-
-        this.diagnosticsService = new EpsilonDiagnosticsService(languageServer);
 
     }
 
     @Override
     public void didOpen(DidOpenTextDocumentParams params) {
 
-        List<Diagnostic> diagnostics = diagnosticsService.generateDiagnostics(params.getTextDocument().getText(),
-                URI.create(params.getTextDocument().getUri()));
+        // Check if the file is already in the map
+
+        EpsilonDocument doc = null;
+
+        if (this.documents.containsKey(params.getTextDocument().getUri())) {
+            doc = this.documents.get(params.getTextDocument().getUri());
+        } else {
+            doc = new EolDocument(languageServer);
+            doc.contents = params.getTextDocument().getText();
+            doc.filename = params.getTextDocument().getUri();
+            this.documents.put(doc.filename, doc);
+        }
+
+        List<Diagnostic> diagnostics = ((EolDocument) doc).generateDiagnostics();
 
         this.languageServer.getClient().publishDiagnostics(
                 new PublishDiagnosticsParams(params.getTextDocument().getUri(), diagnostics));
@@ -58,32 +69,23 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
     public void didChange(DidChangeTextDocumentParams params) {
         languageServer.getClient()
                 .logMessage(new MessageParams(MessageType.Info, "File changed: " + params.getTextDocument().getUri()));
-        // Update server's text document version
-        List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
+
+        // Check if the file is already in the map, and insert it if needed
         String docUri = params.getTextDocument().getUri();
+        EpsilonDocument doc = null;
 
-        for (TextDocumentContentChangeEvent change : changes) {
-            List<Diagnostic> diagnostics = diagnosticsService.generateDiagnostics(change.getText(), null);
-            languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(docUri, diagnostics));
+        if (this.documents.containsKey(docUri)) {
+            doc = this.documents.get(docUri);
+        } else {
+            doc = new EolDocument(languageServer);
+            doc.contents = ((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText();
+            doc.filename = docUri;
+            this.documents.put(docUri, doc);
         }
 
-        EolModule eolModule = new EolModule();
-        try {
-            eolModule.parse(((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText(), null);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        List<Diagnostic> diagnostics = ((EolDocument) doc).generateDiagnostics();
 
-        // diagnosticsService.parseMetamodel("file:///path/to/metamodel.emf");
-
-        try {
-            diagnosticsService.executeModule(docUri, eolModule);
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(docUri, diagnostics));
 
     }
 
@@ -115,8 +117,12 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             DeclarationParams params) {
 
         languageServer.getClient().logMessage(new MessageParams(MessageType.Info, "Got a goto declaration request."));
-
         Location new_location = new Location();
+
+        EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
+
+        doc.getDeclarationLocation(params.getPosition());
+
         new_location.setRange(
                 new Range(new Position(params.getPosition().getLine() + 1, params.getPosition().getCharacter()),
                         new Position(params.getPosition().getLine() + 1, params.getPosition().getCharacter())));
