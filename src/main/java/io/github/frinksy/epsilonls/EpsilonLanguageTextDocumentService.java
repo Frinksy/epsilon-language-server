@@ -2,18 +2,10 @@ package io.github.frinksy.epsilonls;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-// import org.eclipse.emf.common.EMFPlugin;
-// import org.eclipse.emf.ecore.resource.Resource;
-// import org.eclipse.emf.ecore.resource.ResourceSet;
-// import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.lsp4j.DeclarationParams;
 import org.eclipse.lsp4j.Diagnostic;
@@ -83,9 +75,7 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             e.printStackTrace();
         }
 
-
         // diagnosticsService.parseMetamodel("file:///path/to/metamodel.emf");
-
 
         try {
             diagnosticsService.executeModule(docUri, eolModule);

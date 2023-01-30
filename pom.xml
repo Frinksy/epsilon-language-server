@@ -10,6 +10,11 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
+            <groupId>org.eclipse.epsilon.eol.staticanalyser</groupId>
+            <artifactId>org.eclipse.epsilon.eol.staticanalyser</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.eclipse.epsilon</groupId>
             <artifactId>org.eclipse.epsilon.emc.emf</artifactId>
             <version>2.4.0</version>
