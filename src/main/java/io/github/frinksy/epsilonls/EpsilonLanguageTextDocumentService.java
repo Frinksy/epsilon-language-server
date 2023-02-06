@@ -78,10 +78,10 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             doc = this.documents.get(docUri);
         } else {
             doc = new EolDocument(languageServer);
-            doc.contents = ((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText();
             doc.filename = docUri;
             this.documents.put(docUri, doc);
         }
+        doc.contents = ((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText();
 
         List<Diagnostic> diagnostics = ((EolDocument) doc).generateDiagnostics();
 
