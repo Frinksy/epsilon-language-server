@@ -1,0 +1,26 @@
+---
+kind: pipeline
+type: docker
+name: default
+
+trigger:
+  branch:
+    - master
+  event:
+    - push
+    - pull_request
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: Build jar
+  image: maven:3.8.7
+  commands:
+  - git clone https://gitea.home.pi/Frinksy/epsilon-static-analysis.git /epsilon-static-analysis
+  - pushd /epsilon-static-analysis
+  - mvn clean install
+  - popd
+  - mvn package
+
