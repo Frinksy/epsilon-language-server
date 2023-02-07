@@ -1,5 +1,6 @@
 package io.github.frinksy.epsilonls;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -19,8 +20,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
-public class EpsilonLanguageServer implements LanguageServer, LanguageClientAware{
-
+public class EpsilonLanguageServer implements LanguageServer, LanguageClientAware {
 
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
@@ -31,10 +31,9 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
         workspaceService = new EpsilonLanguageWorkspaceService();
     }
 
-
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
-        
+
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
 
         res.getCapabilities().setHoverProvider(Boolean.TRUE);
@@ -61,7 +60,6 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
         }
         return CompletableFuture.supplyAsync(() -> res);
 
-        
     }
 
     @Override
@@ -72,7 +70,6 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
     @Override
     public void exit() {
         // TODO Auto-generated method stub
-        
     }
 
     @Override
@@ -85,12 +82,11 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
         return this.workspaceService;
     }
 
-
     @Override
     public void connect(LanguageClient client) {
         this.languageClient = client;
     }
-    
+
     public LanguageClient getClient() {
         return this.languageClient;
     }
