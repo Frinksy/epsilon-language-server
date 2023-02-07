@@ -8,8 +8,11 @@ import org.eclipse.lsp4j.DiagnosticRegistrationOptions;
 import org.eclipse.lsp4j.DocumentFilter;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.ServerCapabilities;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
+import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -46,6 +49,16 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
         diagnosticRegistrationOptions.setInterFileDependencies(false);
         res.getCapabilities().setDiagnosticProvider(diagnosticRegistrationOptions);
 
+        List<WorkspaceFolder> folders = params.getWorkspaceFolders();
+
+        if (folders != null) {
+            for (WorkspaceFolder folder : folders) {
+
+                this.languageClient.logMessage(new MessageParams(MessageType.Info, folder.toString()));
+                WorkspaceConfiguration.registerWorkspaceMetamodels(URI.create(folder.getUri()), this);
+
+            }
+        }
         return CompletableFuture.supplyAsync(() -> res);
 
         
