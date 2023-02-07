@@ -22,8 +22,8 @@ steps:
   image: maven:3.8.7
   commands:
   - git clone https://gitea.home.pi/Frinksy/epsilon-static-analysis.git /drone/src/epsilon-static-analysis
-  - cd /drone/src/epsilon-static-analysis
+  - cd /drone/src/epsilon-static-analysis/org.eclipse.epsilon.eol.staticanalyser/
   - mvn clean install
-  - cd /drone/src/epsilon-language-server
+  - cd /drone/src/epsilon-language-server/
   - mvn package
 
