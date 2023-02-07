@@ -14,13 +14,16 @@ platform:
   os: linux
   arch: arm64
 
+workspace:
+  path: /drone/src/epsilon-language-server
+
 steps:
 - name: Build jar
   image: maven:3.8.7
   commands:
-  - git clone https://gitea.home.pi/Frinksy/epsilon-static-analysis.git /epsilon-static-analysis
-  - pushd /epsilon-static-analysis
+  - git clone https://gitea.home.pi/Frinksy/epsilon-static-analysis.git /drone/src/epsilon-static-analysis
+  - cd /drone/src/epsilon-static-analysis
   - mvn clean install
-  - popd
+  - cd /drone/src/epsilon-language-server
   - mvn package
 
