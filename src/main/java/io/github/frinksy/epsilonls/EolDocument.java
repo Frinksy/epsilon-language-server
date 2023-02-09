@@ -71,6 +71,11 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
         diagnostics.addAll(getParserDiagnostics());
 
+        if (!diagnostics.isEmpty()) {
+            // Skip the static analysis if there are syntax errors.
+            return diagnostics;
+        }
+
         diagnostics.addAll(getStaticAnalysisDiagnostics());
 
 
