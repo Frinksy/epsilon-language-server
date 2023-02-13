@@ -51,10 +51,10 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
     private void parseProgram() {
 
         // Check that the file has changed since the last time it was modified.
-        byte[] old_md5 = md.digest();
+        byte[] oldMD5 = md.digest();
         md.update(contents.getBytes());
 
-        if (Arrays.equals(old_md5, md.digest())) {
+        if (Arrays.equals(oldMD5, md.digest())) {
             // No new contents, we can return.
             return;
         }
