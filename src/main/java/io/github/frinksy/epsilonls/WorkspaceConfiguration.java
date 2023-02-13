@@ -17,10 +17,14 @@ import org.eclipse.lsp4j.MessageType;
 
 public class WorkspaceConfiguration {
 
-    public static List<IModel> registerWorkspaceMetamodels(java.net.URI folderUri,
+    /**
+     * Register all Ecore metamodels in the workspace.
+     * @param folderUri the workspace folder to search
+     * @param languageServer
+     * @return 
+     */
+    public static void registerWorkspaceMetamodels(java.net.URI folderUri,
             EpsilonLanguageServer languageServer) {
-
-        List<IModel> models = new ArrayList<>();
 
         Path rootPath = Path.of(folderUri);
 
@@ -44,13 +48,7 @@ public class WorkspaceConfiguration {
                 int dotIndex = fileName.lastIndexOf(".");
 
                 if (fileName.substring(dotIndex).equals(".ecore")) {
-                    try {
-                        EmfUtil.register(URI.createURI(currentPath.toString()), EPackage.Registry.INSTANCE);
-
-                    } catch (Exception e) {
-                        languageServer.getClient().logMessage(new MessageParams(MessageType.Warning,
-                                "Error loading model: " + currentPath.toString()));
-                    }
+                    registerModel(currentPath, languageServer);
                 }
 
             }
@@ -65,9 +63,22 @@ public class WorkspaceConfiguration {
             }
         }
 
-        return models;
-
     }
+
+    /**
+     * Register a model, return success.
+    */
+    private static boolean registerModel(Path path, EpsilonLanguageServer languageServer) {
+        try {
+            EmfUtil.register(URI.createURI(path.toString()), EPackage.Registry.INSTANCE);
+        } catch (Exception e) {
+            languageServer.getClient().logMessage(new MessageParams(MessageType.Warning, "Error loading model: " + path.toString()));
+            return false;
+        }
+
+        return true;
+    }
+
 
     private WorkspaceConfiguration() {
     }
