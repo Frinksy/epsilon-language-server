@@ -122,8 +122,8 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         for (ModuleMarker marker : markers) {
 
             Region region = marker.getRegion();
-            Position start = new Position(region.getStart().getLine() - 1, region.getStart().getColumn());
-            Position end = new Position(region.getEnd().getLine() - 1, region.getEnd().getColumn());
+            Position start = convertPosition(region.getStart());
+            Position end = convertPosition(region.getEnd());
 
             Diagnostic diag = new Diagnostic(new Range(start, end), marker.getMessage(),
                     getSeverity(marker.getSeverity()), "EolStaticAnalyser");
@@ -143,22 +143,22 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
             Region reg = statement.getRegion();
 
-            if (regionContainsPosition(reg, position)) {
+            if (regionContainsPosition(reg, convertPosition(position))) {
                 this.log(MessageType.Info, "Found a statement");
             }
+
 
         }
 
         return null;
+
     }
 
-    private boolean regionContainsPosition(Region region, Position position) {
+    private boolean regionContainsPosition(Region region, org.eclipse.epsilon.common.parse.Position position) {
 
         return region.getStart()
-                .isBefore(new org.eclipse.epsilon.common.parse.Position(position.getLine(), position.getCharacter()))
-                && region.getEnd().isAfter(
-                        new org.eclipse.epsilon.common.parse.Position(position.getLine(), position.getCharacter()));
-
+                .isBefore(position)
+                && region.getEnd().isAfter(position);
     }
 
     private DiagnosticSeverity getSeverity(ModuleMarker.Severity severity) {
@@ -192,8 +192,6 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         // We want to find the type that this is.
 
         Position pos = params.getPosition();
-        // Fix the off-by-one line error
-        pos.setLine(pos.getLine() + 1);
         ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, pos);
 
         if (resolvedModule == null) {
@@ -253,7 +251,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
     private ModuleElement getModuleElementAtPosition(ModuleElement module, Position pos) {
 
-        if (!regionContainsPosition(module.getRegion(), pos)) {
+        if (!regionContainsPosition(module.getRegion(), convertPosition(pos))) {
             return null;
         }
 
@@ -265,6 +263,20 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         }
 
         return module;
+
+    }
+
+    private Position convertPosition(org.eclipse.epsilon.common.parse.Position position) {
+        return new Position(position.getLine() - 1, position.getColumn());
+    }
+
+    private org.eclipse.epsilon.common.parse.Position convertPosition(Position position) {
+        return new org.eclipse.epsilon.common.parse.Position(position.getLine() + 1, position.getCharacter());
+    }
+
+    private Range getRangeFromRegion(Region region) {
+
+        return new Range(convertPosition(region.getStart()), convertPosition(region.getEnd()));
 
     }
 
