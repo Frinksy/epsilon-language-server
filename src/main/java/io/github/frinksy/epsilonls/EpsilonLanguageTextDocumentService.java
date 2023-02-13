@@ -1,7 +1,5 @@
 package io.github.frinksy.epsilonls;
 
-import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,6 +106,19 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         Hover hover = new Hover();
         MarkupContent contents = new MarkupContent(MarkupKind.PLAINTEXT, "This is a test hover text");
         hover.setContents(contents);
+
+        EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
+
+        if (doc != null) {
+            contents = doc.getHoverContents(params);
+        }
+
+        if (contents == null) {
+            return CompletableFuture.supplyAsync(() -> null);
+        }
+        hover.setContents(contents);
+
+
 
         return CompletableFuture.supplyAsync(() -> hover);
     }

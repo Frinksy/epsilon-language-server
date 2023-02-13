@@ -6,17 +6,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
 import org.eclipse.epsilon.common.parse.Region;
 import org.eclipse.epsilon.common.parse.problem.ParseProblem;
 import org.eclipse.epsilon.eol.EolModule;
-import org.eclipse.epsilon.eol.concurrent.EolModuleParallel;
+import org.eclipse.epsilon.eol.dom.NameExpression;
+import org.eclipse.epsilon.eol.dom.Operation;
+import org.eclipse.epsilon.eol.dom.OperationCallExpression;
 import org.eclipse.epsilon.eol.dom.Statement;
 import org.eclipse.epsilon.eol.dom.StatementBlock;
+import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.MarkupContent;
+import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -55,7 +62,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         try {
             // We make a new EolModule because parsing things twice seem to break things.
             eolModule = new EolModule();
-            
+
             if (eolModule.parse(contents)) {
                 this.log(MessageType.Info, "Successfully parsed file: " + this.filename);
             }
@@ -78,11 +85,9 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
         diagnostics.addAll(getStaticAnalysisDiagnostics());
 
-
         // Find if the file mentions a model that we can load
 
         // If there is a model, add it
-
 
         return diagnostics;
 
@@ -107,8 +112,6 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
                             "EolParser"));
         }
 
-
-
         return diagnostics;
     }
 
@@ -130,36 +133,32 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         return diagnostics;
     }
 
-
     public Location getDeclarationLocation(Position position) {
-        
-        StatementBlock mainBlock = this.eolModule.getMain();
 
+        StatementBlock mainBlock = this.eolModule.getMain();
 
         // Find the thing that matches the position.
 
-        for (Statement statement: mainBlock.getStatements()) {
+        for (Statement statement : mainBlock.getStatements()) {
 
             Region reg = statement.getRegion();
 
             if (regionContainsPosition(reg, position)) {
                 this.log(MessageType.Info, "Found a statement");
             }
-            
-        }
 
+        }
 
         return null;
     }
 
     private boolean regionContainsPosition(Region region, Position position) {
 
+        return region.getStart()
+                .isBefore(new org.eclipse.epsilon.common.parse.Position(position.getLine(), position.getCharacter()))
+                && region.getEnd().isAfter(
+                        new org.eclipse.epsilon.common.parse.Position(position.getLine(), position.getCharacter()));
 
-        return region.getStart().isBefore(new org.eclipse.epsilon.common.parse.Position(position.getLine(), position.getCharacter()))
-        && region.getEnd().isAfter(new org.eclipse.epsilon.common.parse.Position(position.getLine(), position.getCharacter()));
-
-
-        
     }
 
     private DiagnosticSeverity getSeverity(ModuleMarker.Severity severity) {
@@ -184,6 +183,89 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
             default:
                 return DiagnosticSeverity.Error;
         }
+    }
+
+    public MarkupContent getHoverContents(HoverParams params) {
+
+        this.parseProgram();
+
+        // We want to find the type that this is.
+
+        Position pos = params.getPosition();
+        // Fix the off-by-one line error
+        pos.setLine(pos.getLine() + 1);
+        ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, pos);
+
+        if (resolvedModule == null) {
+
+            return new MarkupContent(MarkupKind.PLAINTEXT, "resolved module not found");
+        } else {
+            log(MessageType.Info, resolvedModule.getRegion().toString());
+
+            if (resolvedModule instanceof StatementBlock)
+                return null;
+
+            String contents = getHoverContentsForModule(resolvedModule);
+
+            return new MarkupContent(MarkupKind.PLAINTEXT, contents);
+
+        }
+
+    }
+
+    private String getHoverContentsForModule(ModuleElement moduleElement) {
+
+        if (moduleElement instanceof NameExpression) {
+
+            // If the parent is an Operation
+
+            ModuleElement parent = moduleElement.getParent();
+            if (parent instanceof OperationCallExpression) {
+
+                OperationCallExpression operationCall = (OperationCallExpression) parent;
+
+                // Find the operation in the static analyser
+                Operation operation = analyser.getExactMatchedOperation(operationCall);
+
+                if (operation != null) {
+                    TypeExpression returnType = operation.getReturnTypeExpression();
+
+                    return operation.getName() + " -> " + returnType.getName();
+                }
+            }
+
+            if (parent instanceof Operation) {
+                Operation operation = (Operation) parent;
+                TypeExpression returnType = operation.getReturnTypeExpression();
+
+                String returnTypeName = "Any";
+                if (returnType != null) {
+                    returnTypeName = returnType.getName();
+                }
+
+                return operation.getName() + " -> " + returnTypeName;
+            }
+
+        }
+
+        return "foobar";
+    }
+
+    private ModuleElement getModuleElementAtPosition(ModuleElement module, Position pos) {
+
+        if (!regionContainsPosition(module.getRegion(), pos)) {
+            return null;
+        }
+
+        for (ModuleElement child : module.getChildren()) {
+            ModuleElement resolved = getModuleElementAtPosition(child, pos);
+            if (resolved != null) {
+                return getModuleElementAtPosition(resolved, pos);
+            }
+        }
+
+        return module;
+
     }
 
 }
