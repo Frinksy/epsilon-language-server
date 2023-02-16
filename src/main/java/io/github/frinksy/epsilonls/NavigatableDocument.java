@@ -5,7 +5,7 @@ import org.eclipse.lsp4j.Position;
 
 public interface NavigatableDocument {
     
-    public Location getDeclarationLocation(Position position);
+    public Location getDeclarationLocation(String uri, Position position);
 
 
 }

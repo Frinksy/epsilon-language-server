@@ -14,7 +14,6 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.OperationCallExpression;
-import org.eclipse.epsilon.eol.dom.Statement;
 import org.eclipse.epsilon.eol.dom.StatementBlock;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
@@ -133,20 +132,23 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         return diagnostics;
     }
 
-    public Location getDeclarationLocation(Position position) {
+    @Override
+    public Location getDeclarationLocation(String uri, Position position) {
 
-        StatementBlock mainBlock = this.eolModule.getMain();
+        ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, position);
 
-        // Find the thing that matches the position.
+        if (resolvedModule instanceof NameExpression && resolvedModule.getParent() instanceof OperationCallExpression) {
+            OperationCallExpression operationCall = (OperationCallExpression) resolvedModule.getParent();
 
-        for (Statement statement : mainBlock.getStatements()) {
+            Operation operation = analyser.getExactMatchedOperation(operationCall);
 
-            Region reg = statement.getRegion();
-
-            if (regionContainsPosition(reg, convertPosition(position))) {
-                this.log(MessageType.Info, "Found a statement");
+            if (operation == null) {
+                return null;
             }
 
+            Region operationRegion = operation.getNameExpression().getRegion();
+
+            return new Location(uri, getRangeFromRegion(operationRegion));
 
         }
 

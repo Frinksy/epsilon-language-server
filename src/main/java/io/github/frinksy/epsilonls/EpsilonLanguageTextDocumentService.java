@@ -22,9 +22,7 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
-import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.RelatedFullDocumentDiagnosticReport;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -128,19 +126,14 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             DeclarationParams params) {
 
         languageServer.getClient().logMessage(new MessageParams(MessageType.Info, "Got a goto declaration request."));
-        Location new_location = new Location();
 
         EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
 
-        doc.getDeclarationLocation(params.getPosition());
+        Location declarationLocation = doc.getDeclarationLocation(params.getTextDocument().getUri(), params.getPosition());
 
-        new_location.setRange(
-                new Range(new Position(params.getPosition().getLine() + 1, params.getPosition().getCharacter()),
-                        new Position(params.getPosition().getLine() + 1, params.getPosition().getCharacter())));
-        new_location.setUri(params.getTextDocument().getUri());
 
-        List<Location> res = new ArrayList<Location>();
-        res.add(new_location);
+        List<Location> res = new ArrayList<>();
+        res.add(declarationLocation);
 
         return CompletableFuture.supplyAsync(() -> Either.forLeft(res));
 
