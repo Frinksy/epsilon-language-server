@@ -23,6 +23,7 @@ import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
+import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RelatedFullDocumentDiagnosticReport;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -116,8 +117,6 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         }
         hover.setContents(contents);
 
-
-
         return CompletableFuture.supplyAsync(() -> hover);
     }
 
@@ -129,8 +128,8 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
 
         EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
 
-        Location declarationLocation = doc.getDeclarationLocation(params.getTextDocument().getUri(), params.getPosition());
-
+        Location declarationLocation = doc.getDeclarationLocation(params.getTextDocument().getUri(),
+                params.getPosition());
 
         List<Location> res = new ArrayList<>();
         res.add(declarationLocation);
@@ -153,4 +152,13 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
 
     }
 
+    @Override
+    public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
+        EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
+
+        List<Location> locations = doc.getReferences(params.getTextDocument().getUri(), params.getPosition());
+
+        return CompletableFuture.supplyAsync(() -> locations);
+
+    }
 }

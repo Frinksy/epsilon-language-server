@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.epsilon.common.module.ModuleElement;
@@ -279,6 +280,64 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
     private Range getRangeFromRegion(Region region) {
 
         return new Range(convertPosition(region.getStart()), convertPosition(region.getEnd()));
+
+    }
+
+    @Override
+    public List<Location> getReferences(String uri, Position position) {
+
+        ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, position);
+
+        if (!(resolvedModule instanceof NameExpression)) {
+            return Collections.emptyList();
+        }
+
+        NameExpression nameExpr = (NameExpression) resolvedModule;
+
+        List<NameExpression> expressions = getNameOccurences(nameExpr.getName(), eolModule.getModule());
+
+        List<Location> locations = new ArrayList<>(expressions.size());
+
+        for (NameExpression expr : expressions) {
+            locations.add(getLocation(uri, expr));
+        }
+
+        return locations;
+    }
+
+    private Location getLocation(String uri, ModuleElement element) {
+
+        Location location = new Location();
+
+        location.setUri(uri);
+
+        location.setRange(
+
+                getRangeFromRegion(element.getRegion())
+
+        );
+
+        return location;
+
+    }
+
+    private List<NameExpression> getNameOccurences(String name, ModuleElement root) {
+
+        List<NameExpression> result = new ArrayList<>();
+
+        if (root instanceof NameExpression) {
+            NameExpression nameExpression = (NameExpression) root;
+            if (nameExpression.getName().equals(name)) {
+                result.add(nameExpression);
+            }
+            return result;
+        }
+
+        for (ModuleElement child : root.getChildren()) {
+            result.addAll(getNameOccurences(name, child));
+        }
+
+        return result;
 
     }
 
