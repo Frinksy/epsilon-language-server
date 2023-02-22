@@ -80,9 +80,11 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         }
         doc.contents = ((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText();
 
-        List<Diagnostic> diagnostics = ((EolDocument) doc).generateDiagnostics();
+        if (doc instanceof DiagnosableDocument) {
+            List<Diagnostic> diagnostics = ((DiagnosableDocument) doc).generateDiagnostics();
 
-        languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(docUri, diagnostics));
+            languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(docUri, diagnostics));
+        }
 
     }
 
@@ -125,14 +127,16 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             DeclarationParams params) {
 
         languageServer.getClient().logMessage(new MessageParams(MessageType.Info, "Got a goto declaration request."));
-
-        EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
-
-        Location declarationLocation = doc.getDeclarationLocation(params.getTextDocument().getUri(),
-                params.getPosition());
-
         List<Location> res = new ArrayList<>();
-        res.add(declarationLocation);
+
+        EpsilonDocument doc = this.documents.get(params.getTextDocument().getUri());
+
+        if (doc instanceof NavigatableDocument) {
+            NavigatableDocument document = (NavigatableDocument) doc;
+            Location declarationLocation = document.getDeclarationLocation(params.getTextDocument().getUri(),
+                    params.getPosition());
+            res.add(declarationLocation);
+        }
 
         return CompletableFuture.supplyAsync(() -> Either.forLeft(res));
 
@@ -154,9 +158,14 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
 
     @Override
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
-        EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
+        EpsilonDocument doc = this.documents.get(params.getTextDocument().getUri());
 
-        List<Location> locations = doc.getReferences(params.getTextDocument().getUri(), params.getPosition());
+        List<Location> locations = new ArrayList<>();
+
+        if (doc instanceof NavigatableDocument) {
+            NavigatableDocument document = (NavigatableDocument) doc;
+            locations.addAll(document.getReferences(params.getTextDocument().getUri(), params.getPosition()));
+        }
 
         return CompletableFuture.supplyAsync(() -> locations);
 
