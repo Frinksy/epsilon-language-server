@@ -67,7 +67,7 @@ public class WorkspaceConfiguration {
     */
     private static boolean registerModel(Path path, EpsilonLanguageServer languageServer) {
         try {
-            EmfUtil.register(URI.createURI(path.toString()), EPackage.Registry.INSTANCE);
+            EmfUtil.register(URI.createFileURI(path.toString()), EPackage.Registry.INSTANCE);
         } catch (Exception e) {
             languageServer.getClient().logMessage(new MessageParams(MessageType.Warning, "Error loading model: " + path.toString()));
             return false;
