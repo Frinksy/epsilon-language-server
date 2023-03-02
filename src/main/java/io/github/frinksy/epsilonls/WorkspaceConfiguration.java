@@ -44,7 +44,7 @@ public class WorkspaceConfiguration {
                 String fileName = currentPath.getFileName().toString();
                 int dotIndex = fileName.lastIndexOf(".");
 
-                if (fileName.substring(dotIndex).equals(".ecore")) {
+                if (dotIndex > 0 && fileName.substring(dotIndex).equals(".ecore")) {
                     registerModel(currentPath, languageServer);
                 }
 
