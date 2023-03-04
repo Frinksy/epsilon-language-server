@@ -1,0 +1,13 @@
+model person driver EMF {
+    nsuri = "thisisametamodel"
+};
+
+// For every person in the model
+for (p: Person in Person.all) {
+    // Print the full name of the person
+    p.getFullName().println();
+}
+
+operation Person getFullName() : String {
+    return (Person.firstName + " " + Person.lastName);
+}
