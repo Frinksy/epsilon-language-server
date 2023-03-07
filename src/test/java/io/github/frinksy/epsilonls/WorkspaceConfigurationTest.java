@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -62,7 +63,7 @@ class WorkspaceConfigurationTest {
         assertEquals(expectedMetamodelURIs.size(), EPackage.Registry.INSTANCE.size());
 
         List<String> actualMetamodelNames = Arrays.stream(EPackage.Registry.INSTANCE.values().toArray())
-                .map(model -> (((EPackage) model).getName())).toList();
+                .map(model -> (((EPackage) model).getName())).collect(Collectors.toList());
 
         for (String expectedName : expectedMetamodelURIs) {
             assertTrue(
