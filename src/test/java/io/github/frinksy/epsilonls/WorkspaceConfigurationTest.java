@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,7 @@ class WorkspaceConfigurationTest {
         // We don't want that.
         EPackage.Registry.INSTANCE.clear();
         EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
+        EPackage.Registry.INSTANCE.put(XMLTypePackage.eNS_URI, XMLTypePackage.eINSTANCE);
     }
 
     @Test
@@ -34,9 +36,9 @@ class WorkspaceConfigurationTest {
 
         WorkspaceConfiguration.registerWorkspaceMetamodels(workspaceUri, languageServer);
 
-        assertEquals(1,
+        assertEquals(2,
                 EPackage.Registry.INSTANCE.size(),
-                "Some models were registered in an empty workspace.");
+                "No nondefault models should be registered in an empty workspace.");
 
     }
 
@@ -49,8 +51,6 @@ class WorkspaceConfigurationTest {
         java.net.URI workspaceUri = Paths.get(".", "src", "test", "resources").toUri();
 
         WorkspaceConfiguration.registerWorkspaceMetamodels(workspaceUri, languageServer);
-
-        assertTrue(true);
 
         // "ecore" and "type" models are always registered when loading Ecore models
         List<String> expectedMetamodelURIs = List.of(
@@ -68,7 +68,7 @@ class WorkspaceConfigurationTest {
         for (String expectedName : expectedMetamodelURIs) {
             assertTrue(
                     actualMetamodelNames.contains(expectedName),
-                    expectedName + " is not in the list of registered metamodels!");
+                    "The list of registered metamodels should contain " + expectedName);
         }
 
     }
