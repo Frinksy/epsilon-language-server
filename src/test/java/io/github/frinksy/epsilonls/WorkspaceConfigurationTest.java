@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EcorePackage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ class WorkspaceConfigurationTest {
         // EPackage Registry keeps state and loaded models between tests.
         // We don't want that.
         EPackage.Registry.INSTANCE.clear();
+        EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
     }
 
     @Test
@@ -31,7 +33,7 @@ class WorkspaceConfigurationTest {
 
         WorkspaceConfiguration.registerWorkspaceMetamodels(workspaceUri, languageServer);
 
-        assertEquals(0,
+        assertEquals(1,
                 EPackage.Registry.INSTANCE.size(),
                 "Some models were registered in an empty workspace.");
 
