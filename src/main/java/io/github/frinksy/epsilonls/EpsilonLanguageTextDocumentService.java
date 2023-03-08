@@ -50,9 +50,9 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             doc = this.documents.get(params.getTextDocument().getUri());
         } else {
             doc = new EolDocument(languageServer);
-            doc.contents = params.getTextDocument().getText();
-            doc.filename = params.getTextDocument().getUri();
-            this.documents.put(doc.filename, doc);
+            doc.setContents(params.getTextDocument().getText());
+            doc.setFilename(params.getTextDocument().getUri());
+            this.documents.put(doc.getFilename(), doc);
         }
 
         List<Diagnostic> diagnostics = ((EolDocument) doc).generateDiagnostics();
@@ -75,10 +75,11 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             doc = this.documents.get(docUri);
         } else {
             doc = new EolDocument(languageServer);
-            doc.filename = docUri;
+            doc.setFilename(docUri);
             this.documents.put(docUri, doc);
         }
-        doc.contents = ((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText();
+        doc.setContents(
+                ((TextDocumentContentChangeEvent) params.getContentChanges().toArray()[0]).getText());
 
         if (doc instanceof DiagnosableDocument) {
             List<Diagnostic> diagnostics = ((DiagnosableDocument) doc).generateDiagnostics();

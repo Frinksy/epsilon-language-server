@@ -48,11 +48,23 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         }
     }
 
+    @Override
+    public void setContents(String contents) {
+        super.setContents(contents);
+
+        // Always parse the program on every update
+        parseProgram();
+        if (eolModule.getParseProblems().isEmpty()) {
+            getStaticAnalysisDiagnostics();
+        }
+
+    }
+
     private void parseProgram() {
 
         // Check that the file has changed since the last time it was modified.
         byte[] oldMD5 = md.digest();
-        md.update(contents.getBytes());
+        md.update(this.getContents().getBytes());
 
         if (Arrays.equals(oldMD5, md.digest())) {
             // No new contents, we can return.
@@ -63,8 +75,8 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
             // We make a new EolModule because parsing things twice seem to break things.
             eolModule = new EolModule();
 
-            if (eolModule.parse(contents)) {
-                this.log(MessageType.Info, "Successfully parsed file: " + this.filename);
+            if (eolModule.parse(this.getContents())) {
+                this.log(MessageType.Info, "Successfully parsed file: " + this.getFilename());
             }
         } catch (Exception e) {
             // This probably won't happen, as we're parsing contents of a string
@@ -151,6 +163,12 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
             return new Location(uri, getRangeFromRegion(operationRegion));
 
+        } else if (resolvedModule instanceof NameExpression && resolvedModule.getParent() instanceof Operation) {
+            // We are at the declaration of the region already
+
+            Region operationRegion = resolvedModule.getRegion();
+
+            return new Location(uri, getRangeFromRegion(operationRegion));
         }
 
         return null;

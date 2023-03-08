@@ -5,8 +5,9 @@ import org.eclipse.lsp4j.MessageType;
 
 public abstract class EpsilonDocument {
     
-    protected String filename;
-    protected String contents;
+    private String filename = null;
+    private String contents = null;
+
     protected EpsilonLanguageServer languageServer;
 
 
@@ -18,4 +19,21 @@ public abstract class EpsilonDocument {
         languageServer.getClient().logMessage(new MessageParams(type, message));
     }
 
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+
+    public String getContents() {
+        return contents;
+    }
+
+    public void setContents(String contents) {
+        this.contents = contents;
+    }
 }
