@@ -249,22 +249,14 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
                 Operation operation = analyser.getExactMatchedOperation(operationCall);
 
                 if (operation != null) {
-                    TypeExpression returnType = operation.getReturnTypeExpression();
-
-                    return operation.getName() + " -> " + returnType.getName();
+                    return EolHover.getOperationHover(operation);
                 }
             }
 
             if (parent instanceof Operation) {
                 Operation operation = (Operation) parent;
-                TypeExpression returnType = operation.getReturnTypeExpression();
 
-                String returnTypeName = "Any";
-                if (returnType != null) {
-                    returnTypeName = returnType.getName();
-                }
-
-                return operation.getName() + " -> " + returnTypeName;
+                return EolHover.getOperationHover(operation);
             }
 
         }
