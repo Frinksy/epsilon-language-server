@@ -1,5 +1,7 @@
 package io.github.frinksy.epsilonls;
 
+import java.io.File;
+import java.net.URI;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -35,8 +37,8 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
     private EolStaticAnalyser analyser;
     private MessageDigest md;
 
-    protected EolDocument(EpsilonLanguageServer languageServer) {
-        super(languageServer);
+    protected EolDocument(EpsilonLanguageServer languageServer, String filename) {
+        super(languageServer, filename);
 
         eolModule = new EolModule();
         analyser = new EolStaticAnalyser();
@@ -75,7 +77,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
             // We make a new EolModule because parsing things twice seem to break things.
             eolModule = new EolModule();
 
-            if (eolModule.parse(this.getContents())) {
+            if (eolModule.parse(this.getContents(), new File(URI.create(this.getFilename())))) {
                 this.log(MessageType.Info, "Successfully parsed file: " + this.getFilename());
             }
         } catch (Exception e) {

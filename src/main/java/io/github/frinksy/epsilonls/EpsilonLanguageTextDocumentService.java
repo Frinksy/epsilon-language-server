@@ -49,7 +49,7 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         if (this.documents.containsKey(params.getTextDocument().getUri())) {
             doc = this.documents.get(params.getTextDocument().getUri());
         } else {
-            doc = new EolDocument(languageServer);
+            doc = new EolDocument(languageServer, params.getTextDocument().getUri());
             doc.setContents(params.getTextDocument().getText());
             doc.setFilename(params.getTextDocument().getUri());
             this.documents.put(doc.getFilename(), doc);
@@ -74,7 +74,7 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         if (this.documents.containsKey(docUri)) {
             doc = this.documents.get(docUri);
         } else {
-            doc = new EolDocument(languageServer);
+            doc = new EolDocument(languageServer, docUri);
             doc.setFilename(docUri);
             this.documents.put(docUri, doc);
         }

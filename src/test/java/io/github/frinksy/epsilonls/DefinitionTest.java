@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 
+
 class DefinitionTest {
 
     EolDocument document;
@@ -35,13 +36,10 @@ class DefinitionTest {
     @BeforeEach
     void setFileContents() throws IOException {
 
-        document = new EolDocument(new MockedLanguageServer());
-
         Path testFilePath = Paths.get(".", "src", "test", "resources", "pens.eol");
 
+        document = new EolDocument(new MockedLanguageServer(), testFilePath.toUri().toString());
         document.setContents(Files.readString(testFilePath));
-        document.setFilename(testFilePath.toUri().toString());
-
     }
 
     @Test

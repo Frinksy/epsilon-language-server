@@ -11,8 +11,9 @@ public abstract class EpsilonDocument {
     protected EpsilonLanguageServer languageServer;
 
 
-    protected EpsilonDocument(EpsilonLanguageServer languageServer) {
+    protected EpsilonDocument(EpsilonLanguageServer languageServer, String filename) {
         this.languageServer = languageServer;
+        this.filename = filename;
     }
 
     protected void log(MessageType type, String message) {

@@ -11,3 +11,6 @@ for (p: Person in Person.all) {
 operation Person getFullName() : String {
     return (Person.firstName + " " + Person.lastName);
 }
+
+
+var thispersoninparticular : Person = Person.all().asSequence().first();
