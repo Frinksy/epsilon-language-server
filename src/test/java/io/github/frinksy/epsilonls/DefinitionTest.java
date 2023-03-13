@@ -51,10 +51,10 @@ class DefinitionTest {
         Location expectedLocation = new Location(
                 document.getFilename(),
                 new Range(
-                        new Position(10, 17),
-                        new Position(10, 28)));
+                        new Position(10, 16),
+                        new Position(10, 27)));
 
-        for (int col = 7; col < 18; col++) {
+        for (int col = 6; col < 17; col++) {
 
             Position operationCallPosition = new Position(7, col);
 
@@ -74,10 +74,10 @@ class DefinitionTest {
         Location expectedLocation = new Location(
                 document.getFilename(),
                 new Range(
-                        new Position(10, 17),
-                        new Position(10, 28)));
+                        new Position(10, 16),
+                        new Position(10, 27)));
 
-        for (int col = 18; col < 28; col++) {
+        for (int col = 17; col < 27; col++) {
             Position chosenOperationDeclarationPosition = new Position(10, col);
             Location actualLocation = document.getDeclarationLocation(document.getFilename(),
                     chosenOperationDeclarationPosition);

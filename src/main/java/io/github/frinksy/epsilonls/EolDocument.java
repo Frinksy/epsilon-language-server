@@ -177,7 +177,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
     }
 
-    private boolean regionContainsPosition(Region region, org.eclipse.epsilon.common.parse.Position position) {
+    public static boolean regionContainsPosition(Region region, org.eclipse.epsilon.common.parse.Position position) {
 
         return region.getStart()
                 .isBefore(position)
@@ -264,7 +264,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         return "foobar";
     }
 
-    private ModuleElement getModuleElementAtPosition(ModuleElement module, Position pos) {
+    public static ModuleElement getModuleElementAtPosition(ModuleElement module, Position pos) {
 
         if (!regionContainsPosition(module.getRegion(), convertPosition(pos))) {
             return null;
@@ -281,15 +281,15 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
     }
 
-    private Position convertPosition(org.eclipse.epsilon.common.parse.Position position) {
-        return new Position(position.getLine() - 1, position.getColumn());
+    public static Position convertPosition(org.eclipse.epsilon.common.parse.Position position) {
+        return new Position(position.getLine() - 1, position.getColumn()-1);
     }
 
-    private org.eclipse.epsilon.common.parse.Position convertPosition(Position position) {
-        return new org.eclipse.epsilon.common.parse.Position(position.getLine() + 1, position.getCharacter());
+    public static org.eclipse.epsilon.common.parse.Position convertPosition(Position position) {
+        return new org.eclipse.epsilon.common.parse.Position(position.getLine() + 1, position.getCharacter()+1);
     }
 
-    private Range getRangeFromRegion(Region region) {
+    public static Range getRangeFromRegion(Region region) {
 
         return new Range(convertPosition(region.getStart()), convertPosition(region.getEnd()));
 
