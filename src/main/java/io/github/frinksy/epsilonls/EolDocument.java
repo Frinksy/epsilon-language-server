@@ -228,6 +228,10 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
             String contents = getHoverContentsForModule(resolvedModule);
 
+            if (contents == null) {
+                return null;
+            }
+            
             return new MarkupContent(MarkupKind.PLAINTEXT, contents);
 
         }
@@ -261,7 +265,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
         }
 
-        return "foobar";
+        return null;
     }
 
     public static ModuleElement getModuleElementAtPosition(ModuleElement module, Position pos) {
