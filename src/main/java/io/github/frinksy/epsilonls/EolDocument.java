@@ -231,7 +231,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
             if (contents == null) {
                 return null;
             }
-            
+
             return new MarkupContent(MarkupKind.PLAINTEXT, contents);
 
         }
@@ -253,15 +253,17 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
                 Operation operation = analyser.getExactMatchedOperation(operationCall);
 
                 if (operation != null) {
-                    return EolHover.getOperationHover(operation);
+                    return EolHover.getHoverContents(operation);
                 }
             }
 
             if (parent instanceof Operation) {
                 Operation operation = (Operation) parent;
 
-                return EolHover.getOperationHover(operation);
+                return EolHover.getHoverContents(operation);
             }
+
+            return EolHover.getNameExpressionHover((NameExpression) moduleElement);
 
         }
 
@@ -286,11 +288,11 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
     }
 
     public static Position convertPosition(org.eclipse.epsilon.common.parse.Position position) {
-        return new Position(position.getLine() - 1, position.getColumn()-1);
+        return new Position(position.getLine() - 1, position.getColumn() - 1);
     }
 
     public static org.eclipse.epsilon.common.parse.Position convertPosition(Position position) {
-        return new org.eclipse.epsilon.common.parse.Position(position.getLine() + 1, position.getCharacter()+1);
+        return new org.eclipse.epsilon.common.parse.Position(position.getLine() + 1, position.getCharacter() + 1);
     }
 
     public static Range getRangeFromRegion(Region region) {

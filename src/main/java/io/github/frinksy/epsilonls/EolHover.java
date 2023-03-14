@@ -3,9 +3,12 @@ package io.github.frinksy.epsilonls;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.epsilon.common.module.ModuleElement;
+import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
+import org.eclipse.epsilon.eol.dom.VariableDeclaration;
 
 public class EolHover {
 
@@ -15,7 +18,7 @@ public class EolHover {
      * @param operation
      * @return
      */
-    public static String getOperationHover(Operation operation) {
+    public static String getHoverContents(Operation operation) {
         TypeExpression returnType = operation.getReturnTypeExpression();
 
         String returnTypeName = "Any";
@@ -37,6 +40,43 @@ public class EolHover {
         signature += ")";
 
         return operation.getName() + signature + " -> " + returnTypeName;
+
+    }
+
+    public static String getNameExpressionHover(NameExpression nameExpression) {
+
+        VariableDeclarationVisitor visitor = new VariableDeclarationVisitor(nameExpression);
+
+        ModuleElement result = visitor.getDeclaration();
+
+        if (result instanceof VariableDeclaration) {
+            return EolHover.getHoverContents((VariableDeclaration) result);
+        }
+
+        if (result instanceof Parameter) {
+            return EolHover.getHoverContents((Parameter) result);
+        }
+
+        return null;
+
+    }
+
+    public static String getHoverContents(VariableDeclaration declaration) {
+
+        String outputString = declaration.getName();
+
+        if (declaration.getTypeExpression() != null) {
+            TypeExpression tExpression = declaration.getTypeExpression();
+            outputString += " : " + tExpression.getName();
+        }
+
+        return outputString;
+    }
+
+    public static String getHoverContents(Parameter parameter) {
+        return parameter.getName()
+                + " : "
+                + parameter.getTypeName();
 
     }
 
