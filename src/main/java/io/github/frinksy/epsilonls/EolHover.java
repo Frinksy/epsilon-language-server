@@ -63,20 +63,25 @@ public class EolHover {
 
     public static String getHoverContents(VariableDeclaration declaration) {
 
-        String outputString = declaration.getName();
+        String name = declaration.getName();
+        String type = "Any";
 
         if (declaration.getTypeExpression() != null) {
             TypeExpression tExpression = declaration.getTypeExpression();
-            outputString += " : " + tExpression.getName();
+            type = tExpression.getName();
         }
 
-        return outputString;
+        return EolHover.contstructVariableHoverText(name, type);
     }
 
     public static String getHoverContents(Parameter parameter) {
-        return parameter.getName()
-                + " : "
-                + parameter.getTypeName();
+        return EolHover.contstructVariableHoverText(parameter.getName(), parameter.getTypeName());
+
+    }
+
+    public static String contstructVariableHoverText(String variableName, String variableType) {
+
+        return variableName + " : " + variableType;
 
     }
 
