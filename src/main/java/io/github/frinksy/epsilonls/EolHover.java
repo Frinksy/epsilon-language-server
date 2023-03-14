@@ -71,15 +71,15 @@ public class EolHover {
             type = tExpression.getName();
         }
 
-        return EolHover.contstructVariableHoverText(name, type);
+        return EolHover.constructVariableHoverText(name, type);
     }
 
     public static String getHoverContents(Parameter parameter) {
-        return EolHover.contstructVariableHoverText(parameter.getName(), parameter.getTypeName());
+        return EolHover.constructVariableHoverText(parameter.getName(), parameter.getTypeName());
 
     }
 
-    public static String contstructVariableHoverText(String variableName, String variableType) {
+    public static String constructVariableHoverText(String variableName, String variableType) {
 
         return variableName + " : " + variableType;
 
