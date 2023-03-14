@@ -18,7 +18,6 @@ import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.OperationCallExpression;
 import org.eclipse.epsilon.eol.dom.StatementBlock;
-import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -155,7 +154,13 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
         ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, position);
 
-        if (resolvedModule instanceof NameExpression && resolvedModule.getParent() instanceof OperationCallExpression) {
+        if (!(resolvedModule instanceof NameExpression)) {
+            return null;
+        }
+
+        NameExpression resolvedNameExpression = (NameExpression) resolvedModule;
+
+        if (resolvedNameExpression.getParent() instanceof OperationCallExpression) {
             OperationCallExpression operationCall = (OperationCallExpression) resolvedModule.getParent();
 
             Operation operation = analyser.getExactMatchedOperation(operationCall);
@@ -168,12 +173,19 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
             return new Location(uri, getRangeFromRegion(operationRegion));
 
-        } else if (resolvedModule instanceof NameExpression && resolvedModule.getParent() instanceof Operation) {
+        } else if (resolvedNameExpression.getParent() instanceof Operation) {
             // We are at the declaration of the region already
 
             Region operationRegion = resolvedModule.getRegion();
 
             return new Location(uri, getRangeFromRegion(operationRegion));
+        }
+
+        ModuleElement declarationModuleElement = new VariableDeclarationVisitor(resolvedNameExpression)
+                .getDeclaration();
+
+        if (declarationModuleElement != null) {
+            return new Location(uri, getRangeFromRegion(declarationModuleElement.getRegion()));
         }
 
         return null;
