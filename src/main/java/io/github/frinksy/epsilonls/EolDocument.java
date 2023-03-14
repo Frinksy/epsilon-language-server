@@ -30,6 +30,9 @@ import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
+import io.github.frinksy.epsilonls.eol.EolHover;
+import io.github.frinksy.epsilonls.eol.visitors.VariableDeclarationVisitor;
+
 public class EolDocument extends EpsilonDocument implements DiagnosableDocument, NavigatableDocument {
 
     private EolModule eolModule;

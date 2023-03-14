@@ -1,4 +1,4 @@
-package io.github.frinksy.epsilonls;
+package io.github.frinksy.epsilonls.eol;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,6 +9,8 @@ import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.dom.VariableDeclaration;
+
+import io.github.frinksy.epsilonls.eol.visitors.VariableDeclarationVisitor;
 
 public class EolHover {
 

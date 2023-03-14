@@ -1,4 +1,4 @@
-package io.github.frinksy.epsilonls;
+package io.github.frinksy.epsilonls.eol.visitors;
 
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.eol.dom.AbortStatement;
