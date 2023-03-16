@@ -45,9 +45,9 @@ public class HoverTest {
         String expectedHoverText = "getFullName() -> String";
 
         // call of getFullName on p at
-        // line 8 (-1)
+        // line 10 (-1)
         // cols 6 - 16
-        int line = 7;
+        int line = 9;
         for (int col = 6; col < 17; col++) {
             Position checkedPosition = new Position(line, col);
 
@@ -66,9 +66,9 @@ public class HoverTest {
         String expectedHoverText = "getFullName() -> String";
 
         // operation definition at
-        // line 11 (-1)
+        // line 13 (-1)
         // col 17 - 27
-        int line = 10;
+        int line = 12;
         for (int col = 17; col < 28; col++) {
             Position checkedPosition = new Position(line, col);
 

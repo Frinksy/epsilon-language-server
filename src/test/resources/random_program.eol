@@ -1,0 +1,53 @@
+model person driver EMF {
+    nsuri = "thisisametamodel"
+};
+
+
+// For every person in the model
+for (p: Person in Person.all) {
+    // Print the full name of the person
+    p.getFullName().println();
+}
+
+operation Person getFullName() : String {
+    return (Person.firstName + " " + Person.lastName);
+}
+
+
+
+operation Person greet(other: Person) : String {
+    // Some random loop that never gets executed.
+    // inner "other" variable shadows outer variable.
+    while (false) {
+        var other: String = "hello";
+        
+        other = "hello inside the while";
+    } 
+    
+
+    // Some random branch which has no side-effects.
+    // inner "other" variable shadows outer variable.
+    if (true) {
+        var other : String = "hello";
+        
+        other = "hello again";
+        
+        if (true) {
+            other = "hello once more";
+        }
+    }
+    
+    var combined = self.firstName + other.firstName;
+    
+    
+    return (self.getFullName() + " greets " + other.getFullName());
+    
+    
+}
+
+// Some other statements after operations are defined.
+
+var thispersoninparticular : Person = Person.all().asSequence().first();
+
+var other : String = "hello there";
+other.println();

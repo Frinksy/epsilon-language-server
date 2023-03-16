@@ -46,17 +46,17 @@ class DefinitionTest {
     @DisplayName("Test getting operation definition from call.")
     void penDefinitionTest() {
         // Find the declaration of getFullName
-        // from use line 8 Col 7 - 17 (inclusive)
-        // Declaration is at line 11 col 18-28 (inclusive)
+        // from use line 10 Col 7 - 17 (inclusive)
+        // Declaration is at line 13 col 18-28 (inclusive)
         Location expectedLocation = new Location(
                 document.getFilename(),
                 new Range(
-                        new Position(10, 16),
-                        new Position(10, 27)));
+                        new Position(12, 16),
+                        new Position(12, 27)));
 
         for (int col = 6; col < 17; col++) {
 
-            Position operationCallPosition = new Position(7, col);
+            Position operationCallPosition = new Position(9, col);
 
             Location actualLocation = document.getDeclarationLocation(document.getFilename(), operationCallPosition);
 
@@ -74,11 +74,11 @@ class DefinitionTest {
         Location expectedLocation = new Location(
                 document.getFilename(),
                 new Range(
-                        new Position(10, 16),
-                        new Position(10, 27)));
+                        new Position(12, 16),
+                        new Position(12, 27)));
 
         for (int col = 17; col < 27; col++) {
-            Position chosenOperationDeclarationPosition = new Position(10, col);
+            Position chosenOperationDeclarationPosition = new Position(12, col);
             Location actualLocation = document.getDeclarationLocation(document.getFilename(),
                     chosenOperationDeclarationPosition);
 
