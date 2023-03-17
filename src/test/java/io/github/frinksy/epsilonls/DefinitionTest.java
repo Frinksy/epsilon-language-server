@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 
-
 class DefinitionTest {
 
     EolDocument document;
@@ -42,6 +41,20 @@ class DefinitionTest {
         document.setContents(Files.readString(testFilePath));
     }
 
+    void testDeclarationLocation(Location expectedLocation, int colStart, int colEnd, int line, String message) {
+
+        for (int col = colStart; col <= colEnd; col++) {
+            Position gotoDeclarationInvocationPosition = new Position(line, col);
+
+            Location actualLocation = document.getDeclarationLocation(document.getFilename(),
+                    gotoDeclarationInvocationPosition);
+
+            assertEquals(expectedLocation, actualLocation, message);
+
+        }
+
+    }
+
     @Test
     @DisplayName("Test getting operation definition from call.")
     void penDefinitionTest() {
@@ -54,15 +67,7 @@ class DefinitionTest {
                         new Position(12, 16),
                         new Position(12, 27)));
 
-        for (int col = 6; col < 17; col++) {
-
-            Position operationCallPosition = new Position(9, col);
-
-            Location actualLocation = document.getDeclarationLocation(document.getFilename(), operationCallPosition);
-
-            assertEquals(expectedLocation, actualLocation);
-
-        }
+        testDeclarationLocation(expectedLocation, 6, 16, 9, null);
     }
 
     @Test
@@ -77,14 +82,7 @@ class DefinitionTest {
                         new Position(12, 16),
                         new Position(12, 27)));
 
-        for (int col = 17; col < 27; col++) {
-            Position chosenOperationDeclarationPosition = new Position(12, col);
-            Location actualLocation = document.getDeclarationLocation(document.getFilename(),
-                    chosenOperationDeclarationPosition);
-
-            assertEquals(expectedLocation, actualLocation);
-
-        }
+        testDeclarationLocation(expectedLocation, 17, 26, 12, null);
     }
 
 }
