@@ -39,25 +39,29 @@ public class HoverTest {
         document.setContents(Files.readString(testFilePath));
     }
 
+    void testHoverText(String expectedHoverText, int colStart, int colEnd, int line, String message) {
+
+        for (int col = colStart; col <= colEnd; col++) {
+            Position hoveredPosition = new Position(line, col);
+
+            MarkupContent actualMarkupContent = document.getHoverContents(
+                    new HoverParams(
+                            new TextDocumentIdentifier(testFilePath.toUri().toString()), hoveredPosition));
+
+            assertEquals(expectedHoverText, actualMarkupContent.getValue(), message);
+
+        }
+
+    }
+
     @Test
     void operationCallHoverTest() {
 
         String expectedHoverText = "getFullName() -> String";
-
         // call of getFullName on p at
         // line 10 (-1)
         // cols 6 - 16
-        int line = 9;
-        for (int col = 6; col < 17; col++) {
-            Position checkedPosition = new Position(line, col);
-
-            MarkupContent actualContent = document.getHoverContents(new HoverParams(
-                    new TextDocumentIdentifier(testFilePath.toUri().toString()), checkedPosition));
-
-            assertEquals(expectedHoverText, actualContent.getValue());
-
-        }
-
+        testHoverText(expectedHoverText, 6, 16, 9, null);
     }
 
     @Test
@@ -68,17 +72,7 @@ public class HoverTest {
         // operation definition at
         // line 13 (-1)
         // col 17 - 27
-        int line = 12;
-        for (int col = 17; col < 28; col++) {
-            Position checkedPosition = new Position(line, col);
-
-            MarkupContent actualContent = document.getHoverContents(
-                    new HoverParams(new TextDocumentIdentifier(testFilePath.toUri().toString()), checkedPosition));
-
-            assertEquals(expectedHoverText, actualContent.getValue());
-
-        }
-
+        testHoverText(expectedHoverText, 17, 27, 12, null);
     }
 
 }
