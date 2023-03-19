@@ -226,12 +226,19 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
             if (parent instanceof OperationCallExpression) {
 
                 OperationCallExpression operationCall = (OperationCallExpression) parent;
+                String operationName = operationCall.getName();
+                String targetName = ((NameExpression)moduleElement).getName();
 
-                // Find the operation in the static analyser
-                Operation operation = analyser.getExactMatchedOperation(operationCall);
+                if (operationName.equals(targetName)) {
+                    // Find the operation in the static analyser
+                    Operation operation = analyser.getExactMatchedOperation(operationCall);
+    
+                    if (operation != null) {
+                        return EolHover.getHoverContents(operation);
+                    } else {
+                        return null;
+                    }
 
-                if (operation != null) {
-                    return EolHover.getHoverContents(operation);
                 }
             }
 
