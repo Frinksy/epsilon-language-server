@@ -1,10 +1,12 @@
 package io.github.frinksy.epsilonls.eol.visitors;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.eclipse.epsilon.common.module.ModuleElement;
+import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.AbortStatement;
 import org.eclipse.epsilon.eol.dom.AndOperatorExpression;
-import org.eclipse.epsilon.eol.dom.AnnotatableModuleElement;
-import org.eclipse.epsilon.eol.dom.Annotation;
 import org.eclipse.epsilon.eol.dom.AnnotationBlock;
 import org.eclipse.epsilon.eol.dom.AssignmentStatement;
 import org.eclipse.epsilon.eol.dom.BooleanLiteral;
@@ -99,27 +101,18 @@ public class VariableDeclarationVisitor implements IEolVisitor {
 
     private void reAccept(ModuleElement moduleElement) {
 
-        if (moduleElement instanceof Expression) {
-
-            ((Expression) moduleElement).accept(this);
+        if (moduleElement instanceof EolModule) {
+            for (ModuleElement child : moduleElement.getChildren()) {
+                reAccept(child);
+            }
         }
 
-        if (moduleElement instanceof Statement) {
-            ((Statement) moduleElement).accept(this);
+        try {
+            Method acceptMethod = moduleElement.getClass().getMethod("accept", IEolVisitor.class);
+            acceptMethod.invoke(moduleElement, this);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException e) {
+            // Don't do anything
         }
-
-        if (moduleElement instanceof AnnotatableModuleElement) {
-            ((AnnotatableModuleElement) moduleElement).accept(this);
-        }
-
-        if (moduleElement instanceof Annotation) {
-            ((Annotation) moduleElement).accept(this);
-        }
-
-        if (moduleElement instanceof Parameter) {
-            ((Parameter) moduleElement).accept(this);
-        }
-
     }
 
     @Override
@@ -150,6 +143,18 @@ public class VariableDeclarationVisitor implements IEolVisitor {
     @Override
     public void visit(AssignmentStatement assignmentStatement) {
         // Do nothing
+
+        Expression targetExpression = assignmentStatement.getTargetExpression();
+
+        if (!(targetExpression instanceof VariableDeclaration)) {
+            return;
+        }
+
+        VariableDeclaration declaration = (VariableDeclaration) targetExpression;
+
+        if (declaration.getName().equals(variableName)) {
+            originModuleElement = targetExpression;
+        }
     }
 
     @Override
@@ -204,7 +209,8 @@ public class VariableDeclarationVisitor implements IEolVisitor {
 
     @Override
     public void visit(EqualsOperatorExpression equalsOperatorExpression) {
-        // Do nothing
+        Expression leftHand = equalsOperatorExpression.getFirstOperand();
+        leftHand.accept(this);
     }
 
     @Override
@@ -224,7 +230,7 @@ public class VariableDeclarationVisitor implements IEolVisitor {
 
     @Override
     public void visit(ExpressionStatement expressionStatement) {
-        // Do nothing
+        expressionStatement.getExpression().accept(this);
     }
 
     @Override
@@ -331,9 +337,7 @@ public class VariableDeclarationVisitor implements IEolVisitor {
     public void visit(Operation operation) {
 
         for (Parameter parameter : operation.getFormalParameters()) {
-
             parameter.accept(this);
-
         }
 
     }
@@ -431,13 +435,12 @@ public class VariableDeclarationVisitor implements IEolVisitor {
 
     @Override
     public void visit(VariableDeclaration variableDeclaration) {
-
         originModuleElement = variableDeclaration;
     }
 
     @Override
     public void visit(WhileStatement whileStatement) {
-        whileStatement.getBodyStatementBlock().accept(this);
+        // Do nothing
     }
 
     @Override
