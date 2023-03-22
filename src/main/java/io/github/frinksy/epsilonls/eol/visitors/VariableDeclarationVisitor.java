@@ -75,7 +75,7 @@ public class VariableDeclarationVisitor implements IEolVisitor {
     String variableName;
     NameExpression rootNameExpression;
 
-    ModuleElement originModuleElement = null;
+    NameExpression declarationNameExpression = null;
 
     int currentDepth = 0;
 
@@ -84,10 +84,10 @@ public class VariableDeclarationVisitor implements IEolVisitor {
         rootNameExpression = nameExpression;
     }
 
-    public ModuleElement getDeclaration() {
+    public NameExpression getDeclaration() {
         rootNameExpression.accept(this);
         ModuleElement parent = rootNameExpression.getParent();
-        while (parent != null && currentDepth < 100 && originModuleElement == null) {
+        while (parent != null && currentDepth < 100 && declarationNameExpression == null) {
             reAccept(parent);
 
             parent = parent.getParent();
@@ -95,7 +95,7 @@ public class VariableDeclarationVisitor implements IEolVisitor {
             currentDepth += 1;
         }
 
-        return originModuleElement;
+        return declarationNameExpression;
 
     }
 
@@ -153,7 +153,7 @@ public class VariableDeclarationVisitor implements IEolVisitor {
         VariableDeclaration declaration = (VariableDeclaration) targetExpression;
 
         if (declaration.getName().equals(variableName)) {
-            originModuleElement = targetExpression;
+            declarationNameExpression = declaration.getNameExpression();
         }
     }
 
@@ -243,7 +243,7 @@ public class VariableDeclarationVisitor implements IEolVisitor {
         Parameter parameter = forStatement.getIteratorParameter();
 
         if (parameter.getName().equals(variableName)) {
-            originModuleElement = parameter;
+            declarationNameExpression = parameter.getNameExpression();
         }
         // Do nothing
     }
@@ -356,7 +356,7 @@ public class VariableDeclarationVisitor implements IEolVisitor {
     public void visit(Parameter parameter) {
 
         if (parameter.getName().equals(variableName)) {
-            originModuleElement = parameter;
+            declarationNameExpression = parameter.getNameExpression();
         }
 
     }
@@ -435,7 +435,9 @@ public class VariableDeclarationVisitor implements IEolVisitor {
 
     @Override
     public void visit(VariableDeclaration variableDeclaration) {
-        originModuleElement = variableDeclaration;
+        if (variableDeclaration.getName().equals(variableName)) {
+            declarationNameExpression = variableDeclaration.getNameExpression();
+        }
     }
 
     @Override
