@@ -32,7 +32,6 @@ import org.eclipse.lsp4j.Range;
 import io.github.frinksy.epsilonls.eol.EolDeclaration;
 import io.github.frinksy.epsilonls.eol.EolHover;
 
-
 public class EolDocument extends EpsilonDocument implements DiagnosableDocument, NavigatableDocument {
 
     private EolModule eolModule;
@@ -227,12 +226,12 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
                 OperationCallExpression operationCall = (OperationCallExpression) parent;
                 String operationName = operationCall.getName();
-                String targetName = ((NameExpression)moduleElement).getName();
+                String targetName = ((NameExpression) moduleElement).getName();
 
                 if (operationName.equals(targetName)) {
                     // Find the operation in the static analyser
                     Operation operation = analyser.getExactMatchedOperation(operationCall);
-    
+
                     if (operation != null) {
                         return EolHover.getHoverContents(operation);
                     } else {
@@ -281,8 +280,13 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
     }
 
     public static Range getRangeFromRegion(Region region) {
+        Range range = new Range(convertPosition(region.getStart()), convertPosition(region.getEnd()));
 
-        return new Range(convertPosition(region.getStart()), convertPosition(region.getEnd()));
+        // LSP4J Range is includes the first character, whereas epsilon Region excludes
+        // it.
+        range.getStart().setCharacter(range.getStart().getCharacter() + 1);
+
+        return range;
 
     }
 

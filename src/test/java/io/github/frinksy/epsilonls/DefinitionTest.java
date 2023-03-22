@@ -64,7 +64,7 @@ class DefinitionTest {
         Location expectedLocation = new Location(
                 document.getFilename(),
                 new Range(
-                        new Position(12, 16),
+                        new Position(12, 17),
                         new Position(12, 27)));
 
         testDeclarationLocation(expectedLocation, 6, 16, 9, null);
@@ -79,7 +79,7 @@ class DefinitionTest {
         Location expectedLocation = new Location(
                 document.getFilename(),
                 new Range(
-                        new Position(12, 16),
+                        new Position(12, 17),
                         new Position(12, 27)));
 
         testDeclarationLocation(expectedLocation, 17, 26, 12, null);
