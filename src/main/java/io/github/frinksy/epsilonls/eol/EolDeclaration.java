@@ -30,8 +30,11 @@ public class EolDeclaration {
             if (operation == null) {
                 return null;
             }
-
-            return operation.getNameExpression();
+            if (operation.getName().equals(nameExpression.getName())) {
+                // Only return the operation declaration if it matches, otherwise we could
+                // be on the instance on which the operation is being invoked.
+                return operation.getNameExpression();
+            }
 
         }
 
