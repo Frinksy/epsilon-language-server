@@ -20,7 +20,7 @@ import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 
 class DefinitionTest {
 
-    EolDocument document;
+    EolDocument document, document2;
 
     @BeforeEach
     void registerMetamodels() throws Exception {
@@ -34,19 +34,24 @@ class DefinitionTest {
 
     @BeforeEach
     void setFileContents() throws IOException {
-
-        Path testFilePath = Paths.get(".", "src", "test", "resources", "pens.eol");
+        Path resourcesPath = Paths.get(".", "src", "test", "resources");
+        Path testFilePath = resourcesPath.resolve("pens.eol");
+        Path testFilePath2 = resourcesPath.resolve("random_program.eol");
 
         document = new EolDocument(new MockedLanguageServer(), testFilePath.toUri().toString());
         document.setContents(Files.readString(testFilePath));
+
+        document2 = new EolDocument(new MockedLanguageServer(), testFilePath2.toUri().toString());
+        document2.setContents(Files.readString(testFilePath2));
     }
 
-    void testDeclarationLocation(Location expectedLocation, int colStart, int colEnd, int line, String message) {
+    void testDeclarationLocation(EolDocument doc, Location expectedLocation, int colStart, int colEnd, int line,
+            String message) {
 
         for (int col = colStart; col <= colEnd; col++) {
             Position gotoDeclarationInvocationPosition = new Position(line, col);
 
-            Location actualLocation = document.getDeclarationLocation(document.getFilename(),
+            Location actualLocation = doc.getDeclarationLocation(doc.getFilename(),
                     gotoDeclarationInvocationPosition);
 
             assertEquals(expectedLocation, actualLocation, message);
@@ -67,7 +72,7 @@ class DefinitionTest {
                         new Position(12, 17),
                         new Position(12, 27)));
 
-        testDeclarationLocation(expectedLocation, 6, 16, 9, null);
+        testDeclarationLocation(document, expectedLocation, 6, 16, 9, null);
     }
 
     @Test
@@ -82,7 +87,25 @@ class DefinitionTest {
                         new Position(12, 17),
                         new Position(12, 27)));
 
-        testDeclarationLocation(expectedLocation, 17, 26, 12, null);
+        testDeclarationLocation(document, expectedLocation, 17, 26, 12, null);
+    }
+
+    @Test
+    void parameterVariableDefintionTest() {
+        // Find the declaration of other in the greet operation
+        // from its use on lines 40 and 43
+
+        Location expectedLocation = new Location(
+                document2.getFilename(),
+                new Range(
+                        new Position(17, 23),
+                        new Position(17, 27)));
+
+        // "other" in an access to one of its attributes
+        testDeclarationLocation(document2, expectedLocation, 36, 40, 39, null);
+        
+        // "other" in an call to getFullName on it.
+        testDeclarationLocation(document2, expectedLocation, 46, 50, 42, null);
     }
 
 }
