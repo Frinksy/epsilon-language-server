@@ -54,7 +54,10 @@ class DefinitionTest {
             Location actualLocation = doc.getDeclarationLocation(doc.getFilename(),
                     gotoDeclarationInvocationPosition);
 
-            assertEquals(expectedLocation, actualLocation, message);
+            String error_message = message + "\nFinding declaration from line " + line + " and col " + col
+                    + " did not yield expected result.";
+
+            assertEquals(expectedLocation, actualLocation, error_message);
 
         }
 
@@ -103,9 +106,51 @@ class DefinitionTest {
 
         // "other" in an access to one of its attributes
         testDeclarationLocation(document2, expectedLocation, 36, 40, 39, null);
-        
+
         // "other" in an call to getFullName on it.
         testDeclarationLocation(document2, expectedLocation, 46, 50, 42, null);
+    }
+
+    @Test
+    void shadowedWhileVariableDefinitionTest() {
+
+        // Find the shadowing declaration of "other" in the while loop in
+        // the greet operation
+
+        Location expectedLocation = new Location(
+                document2.getFilename(),
+                new Range(
+                        new Position(21, 12),
+                        new Position(21, 16)));
+
+        // "other" from the definition in that scope
+        testDeclarationLocation(document2, expectedLocation, 12, 16, 21, null);
+
+        // "other" from the reassignment
+        testDeclarationLocation(document2, expectedLocation, 8, 12, 23, null);
+
+    }
+
+    @Test
+    void shadowedIfVariableDefinitionTest() {
+
+        // Find the shadowing declaration of "other" in the if conditional
+        // branch in the greet operation
+
+        Location expectedLocation = new Location(
+                document2.getFilename(),
+                new Range(
+                        new Position(30, 12),
+                        new Position(30, 16)));
+
+        // "other" from the definition in that scope
+        testDeclarationLocation(document2, expectedLocation, 12, 16, 30, null);
+
+        // "other" from the reassignment in the same scope
+        testDeclarationLocation(document2, expectedLocation, 8, 12, 32, null);
+
+        // "other" from the conditional branch in the scope
+        testDeclarationLocation(document2, expectedLocation, 12, 16, 35, null);
     }
 
 }
