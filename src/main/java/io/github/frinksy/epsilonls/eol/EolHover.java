@@ -49,14 +49,16 @@ public class EolHover {
 
         VariableDeclarationVisitor visitor = new VariableDeclarationVisitor(nameExpression);
 
-        ModuleElement result = visitor.getDeclaration();
+        NameExpression result = visitor.getDeclaration();
 
-        if (result instanceof VariableDeclaration) {
-            return EolHover.getHoverContents((VariableDeclaration) result);
+        ModuleElement parent = result.getParent();
+
+        if (parent instanceof VariableDeclaration) {
+            return EolHover.getHoverContents((VariableDeclaration) parent);
         }
 
-        if (result instanceof Parameter) {
-            return EolHover.getHoverContents((Parameter) result);
+        if (parent instanceof Parameter) {
+            return EolHover.getHoverContents((Parameter) parent);
         }
 
         return null;
