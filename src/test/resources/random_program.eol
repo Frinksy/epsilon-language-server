@@ -38,7 +38,7 @@ operation Person greet(other: Person) : String {
     }
     
     var combined = self.firstName + other.firstName;
-    
+    var some_other_variable = combined; 
     
     return (self.getFullName() + " greets " + other.getFullName());
     
