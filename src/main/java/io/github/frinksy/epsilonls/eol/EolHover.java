@@ -51,6 +51,10 @@ public class EolHover {
 
         NameExpression result = visitor.getDeclaration();
 
+        if (result == null) {
+            return null;
+        }
+
         ModuleElement parent = result.getParent();
 
         if (parent instanceof VariableDeclaration) {

@@ -13,12 +13,15 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 import org.eclipse.epsilon.emc.emf.EmfUtil;
+import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import io.github.frinksy.epsilonls.eol.EolHover;
 
 public class HoverTest {
 
@@ -148,6 +151,18 @@ public class HoverTest {
         String expectedHoverText = "thispersoninparticular : Person";
 
         testHoverText(document2, expectedHoverText, 4, 25, 49, null);
+
+    }
+
+    @Test
+    void variableDeclarationNotFoundTest() {
+
+        // The method should just produce null and not throw an exception
+        // if the variable declaration is not resolved.
+        NameExpression nonExistentNameExpression = new NameExpression("test_variable");
+
+        assertNull(EolHover.getNameExpressionHover(nonExistentNameExpression),
+                "getNameExpression should return null on invalid/unresolved inputs.");
 
     }
 
