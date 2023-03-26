@@ -186,23 +186,19 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, pos);
 
         if (resolvedModule == null) {
-
-            return new MarkupContent(MarkupKind.PLAINTEXT, "resolved module not found");
-        } else {
-            log(MessageType.Info, resolvedModule.getRegion().toString());
-
-            if (resolvedModule instanceof StatementBlock)
-                return null;
-
-            String contents = getHoverContentsForModule(resolvedModule);
-
-            if (contents == null) {
-                return null;
-            }
-
-            return new MarkupContent(MarkupKind.PLAINTEXT, contents);
-
+            return null;
         }
+
+        if (resolvedModule instanceof StatementBlock)
+            return null;
+
+        String contents = getHoverContentsForModule(resolvedModule);
+
+        if (contents == null) {
+            return null;
+        }
+
+        return new MarkupContent(MarkupKind.PLAINTEXT, contents);
 
     }
 
