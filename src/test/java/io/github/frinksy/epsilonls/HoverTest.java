@@ -34,6 +34,8 @@ public class HoverTest {
         EPackage.Registry.INSTANCE.put(XMLTypePackage.eNS_PREFIX, XMLTypePackage.eINSTANCE);
         EmfUtil.register(Paths.get(".", "src", "test", "resources", "pencilcase.ecore").toFile(),
                 EPackage.Registry.INSTANCE);
+        EmfUtil.register(Paths.get(".", "src", "test", "resources", "mymetamodel.ecore").toFile(),
+                EPackage.Registry.INSTANCE);
     }
 
     @BeforeEach
@@ -166,4 +168,16 @@ public class HoverTest {
 
     }
 
+    @Test
+    void variablePropertyHoverTest() {
+
+        String expectedHoverText = "firstName : String";
+
+        // self.firstname on line 40
+        testHoverText(document2, expectedHoverText, 24, 33, 39, null);
+
+        // other.firstName on line 40
+        testHoverText(document2, expectedHoverText, 42, 51, 39, null);
+
+    }
 }

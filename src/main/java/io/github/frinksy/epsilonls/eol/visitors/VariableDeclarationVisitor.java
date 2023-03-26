@@ -69,6 +69,8 @@ import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.dom.VariableDeclaration;
 import org.eclipse.epsilon.eol.dom.WhileStatement;
 import org.eclipse.epsilon.eol.dom.XorOperatorExpression;
+import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
+import org.eclipse.epsilon.eol.types.EolType;
 
 public class VariableDeclarationVisitor implements IEolVisitor {
 
@@ -76,12 +78,43 @@ public class VariableDeclarationVisitor implements IEolVisitor {
     NameExpression rootNameExpression;
 
     NameExpression declarationNameExpression = null;
+    EolType resolvedType = null;
+
+    EolStaticAnalyser analyser;
 
     int currentDepth = 0;
 
     public VariableDeclarationVisitor(NameExpression nameExpression) {
         variableName = nameExpression.getName();
         rootNameExpression = nameExpression;
+        analyser = new EolStaticAnalyser();
+        if (nameExpression.getModule() != null) {
+            analyser.validate(nameExpression.getModule());
+        }
+    }
+
+    public EolType getResolvedType() {
+        rootNameExpression.accept(this);
+
+        ModuleElement parent = rootNameExpression.getParent();
+
+        while (parent != null && currentDepth < 100 && (declarationNameExpression != null || resolvedType != null)) {
+            reAccept(parent);
+            parent = parent.getParent();
+            currentDepth += 1;
+        }
+
+        if (resolvedType != null) {
+            return resolvedType;
+        }
+
+        if (declarationNameExpression == null) {
+            return null;
+        }
+
+        resolvedType = analyser.getResolvedType(declarationNameExpression);
+
+        return resolvedType;
     }
 
     public NameExpression getDeclaration() {
@@ -374,6 +407,13 @@ public class VariableDeclarationVisitor implements IEolVisitor {
     @Override
     public void visit(PropertyCallExpression propertyCallExpression) {
         // Do nothing
+
+        if (propertyCallExpression.getName().equals(variableName)) {
+
+            resolvedType = analyser.getResolvedType(propertyCallExpression);
+
+        }
+
     }
 
     @Override

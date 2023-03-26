@@ -9,6 +9,7 @@ import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.dom.VariableDeclaration;
+import org.eclipse.epsilon.eol.types.EolType;
 
 import io.github.frinksy.epsilonls.eol.visitors.VariableDeclarationVisitor;
 
@@ -52,7 +53,18 @@ public class EolHover {
         NameExpression result = visitor.getDeclaration();
 
         if (result == null) {
-            return null;
+
+            EolType type = visitor.getResolvedType();
+
+            if (type == null) {
+                return null;
+            }
+
+            String variableName = nameExpression.getName();
+            String variableType = type.getName();
+
+            return constructVariableHoverText(variableName, variableType);
+
         }
 
         ModuleElement parent = result.getParent();
