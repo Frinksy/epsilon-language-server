@@ -13,6 +13,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
 import io.github.frinksy.epsilonls.EolDocument;
+import io.github.frinksy.epsilonls.Util;
 import io.github.frinksy.epsilonls.eol.visitors.VariableDeclarationVisitor;
 
 public class EolDeclaration {
@@ -70,7 +71,7 @@ public class EolDeclaration {
         String uri = null;
         uri = declarationFile.toPath().toUri().toString();
 
-        Range region = EolDocument.getRangeFromRegion(declarationModuleElement.getRegion());
+        Range region = Util.getRangeFromRegion(declarationModuleElement.getRegion());
 
         return new Location(
                 uri,

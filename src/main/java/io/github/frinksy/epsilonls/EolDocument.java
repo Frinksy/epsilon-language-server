@@ -138,10 +138,8 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         for (ModuleMarker marker : markers) {
 
             Region region = marker.getRegion();
-            Position start = convertPosition(region.getStart());
-            Position end = convertPosition(region.getEnd());
 
-            Diagnostic diag = new Diagnostic(new Range(start, end), marker.getMessage(),
+            Diagnostic diag = new Diagnostic(Util.getRangeFromRegion(region), marker.getMessage(),
                     getSeverity(marker.getSeverity()), "EolStaticAnalyser");
             diagnostics.add(diag);
         }
@@ -152,13 +150,6 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
     @Override
     public Location getDeclarationLocation(String uri, Position position) {
         return EolDeclaration.getDeclaration(position, eolModule, analyser);
-    }
-
-    public static boolean regionContainsPosition(Region region, org.eclipse.epsilon.common.parse.Position position) {
-
-        return region.getStart()
-                .isBefore(position)
-                && region.getEnd().isAfter(position);
     }
 
     private DiagnosticSeverity getSeverity(ModuleMarker.Severity severity) {
@@ -256,7 +247,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
     public static ModuleElement getModuleElementAtPosition(ModuleElement module, Position pos) {
 
-        if (!regionContainsPosition(module.getRegion(), convertPosition(pos))) {
+        if (!Util.regionContainsPosition(module.getRegion(), Util.convertPosition(pos))) {
             return null;
         }
 
@@ -268,25 +259,6 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         }
 
         return module;
-
-    }
-
-    public static Position convertPosition(org.eclipse.epsilon.common.parse.Position position) {
-        return new Position(position.getLine() - 1, position.getColumn() - 1);
-    }
-
-    public static org.eclipse.epsilon.common.parse.Position convertPosition(Position position) {
-        return new org.eclipse.epsilon.common.parse.Position(position.getLine() + 1, position.getCharacter() + 1);
-    }
-
-    public static Range getRangeFromRegion(Region region) {
-        Range range = new Range(convertPosition(region.getStart()), convertPosition(region.getEnd()));
-
-        // LSP4J Range is includes the first character, whereas epsilon Region excludes
-        // it.
-        range.getStart().setCharacter(range.getStart().getCharacter() + 1);
-
-        return range;
 
     }
 
@@ -320,7 +292,7 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
         location.setRange(
 
-                getRangeFromRegion(element.getRegion())
+                Util.getRangeFromRegion(element.getRegion())
 
         );
 

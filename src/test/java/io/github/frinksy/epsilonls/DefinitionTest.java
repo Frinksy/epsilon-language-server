@@ -73,7 +73,7 @@ class DefinitionTest {
                 document.getFilename(),
                 new Range(
                         new Position(12, 17),
-                        new Position(12, 27)));
+                        new Position(12, 28)));
 
         testDeclarationLocation(document, expectedLocation, 6, 16, 9, null);
     }
@@ -88,7 +88,7 @@ class DefinitionTest {
                 document.getFilename(),
                 new Range(
                         new Position(12, 17),
-                        new Position(12, 27)));
+                        new Position(12, 28)));
 
         testDeclarationLocation(document, expectedLocation, 17, 26, 12, null);
     }
@@ -102,7 +102,7 @@ class DefinitionTest {
                 document2.getFilename(),
                 new Range(
                         new Position(17, 23),
-                        new Position(17, 27)));
+                        new Position(17, 28)));
 
         // "other" in an access to one of its attributes
         testDeclarationLocation(document2, expectedLocation, 36, 40, 39, null);
@@ -121,7 +121,7 @@ class DefinitionTest {
                 document2.getFilename(),
                 new Range(
                         new Position(21, 12),
-                        new Position(21, 16)));
+                        new Position(21, 17)));
 
         // "other" from the definition in that scope
         testDeclarationLocation(document2, expectedLocation, 12, 16, 21, null);
@@ -141,7 +141,7 @@ class DefinitionTest {
                 document2.getFilename(),
                 new Range(
                         new Position(30, 12),
-                        new Position(30, 16)));
+                        new Position(30, 17)));
 
         // "other" from the definition in that scope
         testDeclarationLocation(document2, expectedLocation, 12, 16, 30, null);
