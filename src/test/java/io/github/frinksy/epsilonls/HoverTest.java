@@ -4,53 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EcorePackage;
-import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
-import org.eclipse.epsilon.emc.emf.EmfUtil;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.github.frinksy.epsilonls.eol.EolHover;
 
-public class HoverTest {
-
-    EolDocument document, document2;
-
-    @BeforeEach
-    void registerMetamodels() throws Exception {
-        EPackage.Registry.INSTANCE.clear();
-        EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
-        EPackage.Registry.INSTANCE.put(XMLTypePackage.eNS_PREFIX, XMLTypePackage.eINSTANCE);
-        EmfUtil.register(Paths.get(".", "src", "test", "resources", "pencilcase.ecore").toFile(),
-                EPackage.Registry.INSTANCE);
-        EmfUtil.register(Paths.get(".", "src", "test", "resources", "mymetamodel.ecore").toFile(),
-                EPackage.Registry.INSTANCE);
-    }
-
-    @BeforeEach
-    void setFileContents() throws IOException {
-        Path resourcesPath = Paths.get(".", "src", "test", "resources");
-        Path testFilePath = resourcesPath.resolve("pens.eol");
-        Path testFilePath2 = resourcesPath.resolve("random_program.eol");
-
-        document = new EolDocument(new MockedLanguageServer(), testFilePath.toUri().toString());
-        document.setContents(Files.readString(testFilePath));
-
-        document2 = new EolDocument(new MockedLanguageServer(), testFilePath2.toUri().toString());
-        document2.setContents(Files.readString(testFilePath2));
-
-    }
+public class HoverTest extends TestTemplate {
 
     void testHoverText(EolDocument doc, String expectedHoverText, int colStart, int colEnd, int line, String message) {
 

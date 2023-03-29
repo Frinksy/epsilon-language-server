@@ -2,48 +2,13 @@ package io.github.frinksy.epsilonls;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EcorePackage;
-import org.eclipse.epsilon.emc.emf.EmfUtil;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.eclipse.emf.ecore.xml.type.XMLTypePackage;
 
-class DefinitionTest {
-
-    EolDocument document, document2;
-
-    @BeforeEach
-    void registerMetamodels() throws Exception {
-        EPackage.Registry.INSTANCE.clear();
-        EPackage.Registry.INSTANCE.put(EcorePackage.eNS_URI, EcorePackage.eINSTANCE);
-        EPackage.Registry.INSTANCE.put(XMLTypePackage.eNS_URI, XMLTypePackage.eINSTANCE);
-        EmfUtil.register(Paths.get(".", "src", "test", "resources", "pencilcase.ecore").toFile(),
-                EPackage.Registry.INSTANCE);
-
-    }
-
-    @BeforeEach
-    void setFileContents() throws IOException {
-        Path resourcesPath = Paths.get(".", "src", "test", "resources");
-        Path testFilePath = resourcesPath.resolve("pens.eol");
-        Path testFilePath2 = resourcesPath.resolve("random_program.eol");
-
-        document = new EolDocument(new MockedLanguageServer(), testFilePath.toUri().toString());
-        document.setContents(Files.readString(testFilePath));
-
-        document2 = new EolDocument(new MockedLanguageServer(), testFilePath2.toUri().toString());
-        document2.setContents(Files.readString(testFilePath2));
-    }
+class DefinitionTest extends TestTemplate {
 
     void testDeclarationLocation(EolDocument doc, Location expectedLocation, int colStart, int colEnd, int line,
             String message) {
