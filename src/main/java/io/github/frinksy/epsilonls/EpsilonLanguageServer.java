@@ -20,11 +20,14 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
+import com.google.gson.JsonElement;
+
 public class EpsilonLanguageServer implements LanguageServer, LanguageClientAware {
 
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
     private LanguageClient languageClient;
+    private int maxNumberOfProblems = -1;
 
     public EpsilonLanguageServer() {
         textService = new EpsilonLanguageTextDocumentService(this);
@@ -33,6 +36,9 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
 
     @Override
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
+
+        Object initialisationOptions = params.getInitializationOptions();
+        maxNumberOfProblems = getConfiguredMaxNumberOfProblems(initialisationOptions);
 
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
 
@@ -92,4 +98,44 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
         return this.languageClient;
     }
 
+    /**
+     * Get the maxNumberOfProblems
+     * 
+     * @return the maxNumberOfProblems, >=-1 (-1 being default/unlimited)
+     */
+    public int getMaxNumberOfProblems() {
+        return maxNumberOfProblems;
+    }
+
+    /**
+     * Get the maxNumberOfProblems from a deserialized JSON object
+     * 
+     * @param initialisationOptions
+     * @return
+     */
+    public static int getConfiguredMaxNumberOfProblems(Object initialisationOptions) {
+
+        if (!(initialisationOptions instanceof JsonElement)) {
+            return -1;
+        }
+
+        JsonElement options = ((JsonElement) initialisationOptions);
+
+        if (!(options.isJsonObject())) {
+            return -1;
+        }
+
+        JsonElement numberElement = options.getAsJsonObject().get("maxNumberOfProblems");
+
+        if (numberElement == null) {
+            return -1;
+        }
+
+        try {
+            return numberElement.getAsInt();
+        } catch (ClassCastException | IllegalStateException e) {
+            return -1;
+        }
+
+    }
 }

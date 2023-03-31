@@ -57,6 +57,10 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
 
         List<Diagnostic> diagnostics = ((EolDocument) doc).generateDiagnostics();
 
+        if (languageServer.getMaxNumberOfProblems() >= 0) {
+            diagnostics = diagnostics.subList(0, languageServer.getMaxNumberOfProblems());
+        }
+
         this.languageServer.getClient().publishDiagnostics(
                 new PublishDiagnosticsParams(params.getTextDocument().getUri(), diagnostics));
 
@@ -83,6 +87,10 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
 
         if (doc instanceof DiagnosableDocument) {
             List<Diagnostic> diagnostics = ((DiagnosableDocument) doc).generateDiagnostics();
+
+            if (languageServer.getMaxNumberOfProblems() >= 0) {
+                diagnostics = diagnostics.subList(0, languageServer.getMaxNumberOfProblems());
+            }
 
             languageServer.getClient().publishDiagnostics(new PublishDiagnosticsParams(docUri, diagnostics));
         }
