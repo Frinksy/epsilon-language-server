@@ -1,0 +1,15 @@
+model person driver EMF {
+    nsuri = "thisisametamodel"
+};
+
+
+operation Person beGreetedByThisPerson(firstName: Boolean) : String {
+
+    if (firstName) {
+        return (self.firstName + " says greetings!");
+    }
+
+    return (self.lastName + " says greetings!");
+
+
+}

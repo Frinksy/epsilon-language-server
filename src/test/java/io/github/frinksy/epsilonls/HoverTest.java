@@ -143,4 +143,16 @@ public class HoverTest extends TestTemplate {
         testHoverText(document2, expectedHoverText, 42, 51, 39, null);
 
     }
+
+    @Test
+    void propertyWithNameOfVariableTest() {
+        // The hover text should not get confused with the one for a variable with same
+        // name but
+        // possibly different type.
+        String expectedHoverText = "firstName : String";
+
+        // self.firstName on line 9
+        testHoverText(document3, expectedHoverText, 21, 30, 8, null);
+
+    }
 }

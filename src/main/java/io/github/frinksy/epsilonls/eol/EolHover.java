@@ -7,6 +7,7 @@ import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.Parameter;
+import org.eclipse.epsilon.eol.dom.PropertyCallExpression;
 import org.eclipse.epsilon.eol.dom.TypeExpression;
 import org.eclipse.epsilon.eol.dom.VariableDeclaration;
 import org.eclipse.epsilon.eol.types.EolType;
@@ -51,6 +52,21 @@ public class EolHover {
         VariableDeclarationVisitor visitor = new VariableDeclarationVisitor(nameExpression);
 
         NameExpression result = visitor.getDeclaration();
+
+        // The visitor just looks for a declaration of a variable with the same name.
+        // In the case of a object's property having the same name as a variable in the
+        // same scope, the visitor will (wrongly) find the variable instead.
+        //
+        // Running visitor.getDeclaration() seems to have some side-effects, which need
+        // to be investigated. Those side-effects seem to make things work for now.
+        if (nameExpression.getParent() instanceof PropertyCallExpression) {
+
+            PropertyCallExpression parentCallExpression = (PropertyCallExpression) nameExpression.getParent();
+            if (parentCallExpression.getNameExpression() == nameExpression) {
+                result = null;
+            }
+
+        }
 
         if (result == null) {
 

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 public abstract class TestTemplate {
 
-    EolDocument document, document2;
+    EolDocument document, document2, document3;
 
     @BeforeEach
     void registerMetamodels() throws Exception {
@@ -31,6 +31,7 @@ public abstract class TestTemplate {
         Path resourcesPath = Paths.get(".", "src", "test", "resources");
         Path testFilePath = resourcesPath.resolve("pens.eol");
         Path testFilePath2 = resourcesPath.resolve("random_program.eol");
+        Path testFilePath3 = resourcesPath.resolve("properties_corner_cases.eol");
 
         document = new EolDocument(new MockedLanguageServer(), testFilePath.toUri().toString());
         document.setContents(Files.readString(testFilePath));
@@ -38,6 +39,8 @@ public abstract class TestTemplate {
         document2 = new EolDocument(new MockedLanguageServer(), testFilePath2.toUri().toString());
         document2.setContents(Files.readString(testFilePath2));
 
+        document3 = new EolDocument(new MockedLanguageServer(), testFilePath3.toUri().toString());
+        document3.setContents(Files.readString(testFilePath3));
     }
 
 }
