@@ -7,6 +7,7 @@ import org.eclipse.epsilon.eol.EolModule;
 import org.eclipse.epsilon.eol.dom.NameExpression;
 import org.eclipse.epsilon.eol.dom.Operation;
 import org.eclipse.epsilon.eol.dom.OperationCallExpression;
+import org.eclipse.epsilon.eol.dom.PropertyCallExpression;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -18,7 +19,8 @@ import io.github.frinksy.epsilonls.eol.visitors.VariableDeclarationVisitor;
 
 public class EolDeclaration {
 
-    private EolDeclaration() {}
+    private EolDeclaration() {
+    }
 
     public static ModuleElement getDeclaration(NameExpression nameExpression, EolStaticAnalyser analyser) {
 
@@ -43,6 +45,16 @@ public class EolDeclaration {
             Operation operation = (Operation) nameExpression.getParent();
 
             return operation.getNameExpression();
+        }
+
+        if (nameExpression.getParent() instanceof PropertyCallExpression) {
+
+            PropertyCallExpression propertyCallExpression = (PropertyCallExpression) nameExpression.getParent();
+
+            if (propertyCallExpression.getNameExpression() == nameExpression) {
+                return null;
+            }
+
         }
 
         return new VariableDeclarationVisitor(nameExpression).getDeclaration();

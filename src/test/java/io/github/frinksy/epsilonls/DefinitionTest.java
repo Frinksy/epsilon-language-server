@@ -118,4 +118,11 @@ class DefinitionTest extends TestTemplate {
         testDeclarationLocation(document2, expectedLocation, 12, 16, 35, null);
     }
 
+    @Test
+    void propertyWithNameOfVariableDefinitionTest() {
+
+        // The definition should not get confused with the one for a variable with same
+        // name but possibly different type.
+        testDeclarationLocation(document3, null, 21, 30, 8, null);
+    }
 }
