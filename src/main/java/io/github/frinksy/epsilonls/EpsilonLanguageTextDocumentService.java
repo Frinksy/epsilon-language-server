@@ -19,7 +19,6 @@ import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
-import org.eclipse.lsp4j.MarkupKind;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
@@ -114,8 +113,7 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         languageServer.getClient().logMessage(new MessageParams(MessageType.Info, "Got a new hover request."));
 
         Hover hover = new Hover();
-        MarkupContent contents = new MarkupContent(MarkupKind.PLAINTEXT, "This is a test hover text");
-        hover.setContents(contents);
+        MarkupContent contents = null;
 
         EolDocument doc = (EolDocument) this.documents.get(params.getTextDocument().getUri());
 
