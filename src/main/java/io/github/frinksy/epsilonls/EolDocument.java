@@ -241,20 +241,44 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         return null;
     }
 
+    public static ModuleElement smallestFit(List<ModuleElement> candidates) {
+
+        ModuleElement currentBest = candidates.get(0);
+
+        for (ModuleElement candidate : candidates) {
+            if (isRegionContained(candidate.getRegion(), currentBest.getRegion())) {
+                currentBest = candidate;
+            }
+        }
+
+        return currentBest;
+    }
+
+    public static boolean isRegionContained(Region inner, Region outer) {
+
+        return inner.getStart().isAfter(outer.getStart()) && inner.getEnd().isBefore(outer.getEnd());
+
+    }
+
     public static ModuleElement getModuleElementAtPosition(ModuleElement module, Position pos) {
 
         if (!Util.regionContainsPosition(module.getRegion(), Util.convertPosition(pos))) {
             return null;
         }
 
+        List<ModuleElement> currentCandidates = new ArrayList<>();
         for (ModuleElement child : module.getChildren()) {
             ModuleElement resolved = getModuleElementAtPosition(child, pos);
             if (resolved != null) {
-                return getModuleElementAtPosition(resolved, pos);
+                currentCandidates.add(getModuleElementAtPosition(resolved, pos));
             }
         }
 
-        return module;
+        if (currentCandidates.isEmpty()) {
+            return module;
+        }
+
+        return smallestFit(currentCandidates);
 
     }
 
