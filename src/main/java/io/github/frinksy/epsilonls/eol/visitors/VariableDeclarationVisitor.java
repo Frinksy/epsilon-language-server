@@ -94,6 +94,12 @@ public class VariableDeclarationVisitor implements IEolVisitor {
     }
 
     public EolType getResolvedType() {
+
+        // Special case for "self" keyword
+        if (rootNameExpression.getName().equals("self")) {
+            return analyser.getResolvedType(rootNameExpression);
+        }
+
         rootNameExpression.accept(this);
 
         ModuleElement parent = rootNameExpression.getParent();

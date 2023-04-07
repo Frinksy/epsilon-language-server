@@ -155,4 +155,28 @@ public class HoverTest extends TestTemplate {
         testHoverText(document3, expectedHoverText, 21, 30, 8, null);
 
     }
+
+    @Test
+    void selfInOperationBodyTest() {
+
+        String expectedHoverText = "self : Person";
+
+        // self.firstName on line 40
+        testHoverText(document2, expectedHoverText, 19, 23, 39, expectedHoverText);
+
+        // self.getFullname() on line 43
+        testHoverText(document2, expectedHoverText, 12, 16, 42, expectedHoverText);
+
+    }
+
+    @Test
+    void selfInOperationCallTest() {
+
+        String expectedHoverText = "self : Person";
+
+        // self as the parameter of self.greet(self) on line 14
+        testHoverText(document, expectedHoverText, 15, 19, 13, expectedHoverText);
+
+    }
+
 }
