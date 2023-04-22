@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.DeclarationParams;
+import org.eclipse.lsp4j.DefinitionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidCloseTextDocumentParams;
@@ -143,6 +144,25 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
             Location declarationLocation = document.getDeclarationLocation(params.getTextDocument().getUri(),
                     params.getPosition());
             res.add(declarationLocation);
+        }
+
+        return CompletableFuture.supplyAsync(() -> Either.forLeft(res));
+
+    }
+
+    @Override
+    public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
+            DefinitionParams params) {
+        List<Location> res = new ArrayList<>();
+
+        EpsilonDocument doc = this.documents.get(params.getTextDocument().getUri());
+
+        if (doc instanceof NavigatableDocument) {
+            NavigatableDocument document = (NavigatableDocument) doc;
+            // Definition and declaration are just aliased here.
+            Location definitionLocation = document.getDeclarationLocation(params.getTextDocument().getUri(),
+                    params.getPosition());
+            res.add(definitionLocation);
         }
 
         return CompletableFuture.supplyAsync(() -> Either.forLeft(res));
