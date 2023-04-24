@@ -1,11 +1,14 @@
 package io.github.frinksy.epsilonls;
 
+import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.MessageActionItem;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ShowMessageRequestParams;
+import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 /**
@@ -50,6 +53,14 @@ public class MockedLanguageServer extends EpsilonLanguageServer {
     public LanguageClient getClient() {
         // TODO Auto-generated method stub
         return languageClient;
+    }
+
+    @Override
+    public List<WorkspaceFolder> getWorkspaceFolders() {
+
+        WorkspaceFolder folder = new WorkspaceFolder(Path.of("src", "test", "resources").toUri().toString());
+
+        return List.of(folder);
     }
 
 }

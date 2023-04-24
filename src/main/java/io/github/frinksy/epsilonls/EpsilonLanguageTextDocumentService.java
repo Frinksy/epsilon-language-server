@@ -1,10 +1,18 @@
 package io.github.frinksy.epsilonls;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import org.eclipse.lsp4j.DeclarationParams;
 import org.eclipse.lsp4j.DefinitionParams;
@@ -26,6 +34,7 @@ import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.ReferenceParams;
 import org.eclipse.lsp4j.RelatedFullDocumentDiagnosticReport;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
+import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
@@ -187,6 +196,9 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Location>> references(ReferenceParams params) {
         EpsilonDocument doc = this.documents.get(params.getTextDocument().getUri());
 
+        // Make sure all workspace files are added so references resolve across files
+        addAllWorkspaceSourceFiles();
+
         List<Location> locations = new ArrayList<>();
 
         if (doc instanceof NavigatableDocument) {
@@ -197,4 +209,92 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
         return CompletableFuture.supplyAsync(() -> locations);
 
     }
+
+    public void addSourceFile(Path sourceFilePath, Class<? extends EpsilonDocument> documentClass) {
+
+        String uri = sourceFilePath.toUri().toString();
+
+        // Check if it is already synced through LSP
+        if (documents.containsKey(uri)) {
+            return;
+        }
+
+        EpsilonDocument doc = null;
+
+        try {
+            doc = documentClass.getDeclaredConstructor(EpsilonLanguageServer.class, String.class)
+                    .newInstance(this.languageServer, uri);
+
+            doc.setContents(Files.readString(sourceFilePath));
+
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException | IOException e) {
+            // TODO Auto-generated catch block
+            this.languageServer.getClient().logMessage(new MessageParams(MessageType.Error, e.getMessage()));
+        }
+
+        if (doc != null) {
+
+            documents.put(uri, doc);
+
+        }
+
+    }
+
+    public void addAllWorkspaceSourceFiles() {
+
+        List<WorkspaceFolder> folders = this.languageServer.getWorkspaceFolders();
+
+        if (folders == null) {
+            return;
+        }
+
+        for (WorkspaceFolder folder : folders) {
+
+            Path rootPath = Path.of(URI.create(folder.getUri()));
+
+            Stream<Path> stream = null;
+
+            try {
+
+                stream = Files.walk(rootPath);
+
+                Iterator<Path> iterator = stream.iterator();
+
+                while (iterator.hasNext()) {
+                    Path currentPath = iterator.next();
+
+                    if (Files.isDirectory(currentPath)) {
+                        continue;
+                    }
+
+                    // Check if it is a .eol file
+                    String fileName = currentPath.getFileName().toString();
+                    int dotIndex = fileName.lastIndexOf(".");
+
+                    if (dotIndex > 0 && fileName.substring(dotIndex).equals(".eol")) {
+
+                        addSourceFile(currentPath, EolDocument.class);
+
+                    }
+
+                }
+
+            } catch (IOException e) {
+                languageServer.getClient().logMessage(new MessageParams(MessageType.Error,
+                        "An IO error occured whilst loading workspace EOL files! \n" + e.getMessage()));
+            } finally {
+                if (stream != null) {
+                    stream.close();
+                }
+            }
+
+        }
+
+    }
+
+    public Collection<EpsilonDocument> getEpsilonDocuments() {
+        return documents.values();
+    }
+
 }

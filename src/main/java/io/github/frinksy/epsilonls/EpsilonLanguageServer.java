@@ -28,6 +28,11 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
     private WorkspaceService workspaceService;
     private LanguageClient languageClient;
     private int maxNumberOfProblems = -1;
+    private List<WorkspaceFolder> workspaceFolders = null;
+
+    public List<WorkspaceFolder> getWorkspaceFolders() {
+        return workspaceFolders;
+    }
 
     public EpsilonLanguageServer() {
         textService = new EpsilonLanguageTextDocumentService(this);
@@ -56,10 +61,10 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
         diagnosticRegistrationOptions.setInterFileDependencies(false);
         res.getCapabilities().setDiagnosticProvider(diagnosticRegistrationOptions);
 
-        List<WorkspaceFolder> folders = params.getWorkspaceFolders();
+        workspaceFolders = params.getWorkspaceFolders();
 
-        if (folders != null) {
-            for (WorkspaceFolder folder : folders) {
+        if (workspaceFolders != null) {
+            for (WorkspaceFolder folder : workspaceFolders) {
 
                 this.languageClient.logMessage(new MessageParams(MessageType.Info, folder.toString()));
                 WorkspaceConfiguration.registerWorkspaceMetamodels(URI.create(folder.getUri()), this);

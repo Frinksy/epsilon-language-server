@@ -64,6 +64,11 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
     }
 
+    public EolModule getEolModule() {
+        parseProgram();
+        return eolModule;
+    }
+
     private void parseProgram() {
 
         // Check that the file has changed since the last time it was modified.
@@ -287,7 +292,12 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
 
         ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, position);
 
-        return EolReferences.getReferences(resolvedModule);
+        EpsilonLanguageTextDocumentService textService = (EpsilonLanguageTextDocumentService) this.languageServer
+                .getTextDocumentService();
+
+        textService.addAllWorkspaceSourceFiles();
+
+        return EolReferences.getReferences(resolvedModule, textService.getEpsilonDocuments());
     }
 
 }

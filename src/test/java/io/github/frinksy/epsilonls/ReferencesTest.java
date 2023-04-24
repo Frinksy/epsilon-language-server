@@ -29,17 +29,22 @@ class ReferencesTest extends TestTemplate {
 
     }
 
-    void testReferences(EolDocument doc, int[][] expected_raw_coordinates, String message) {
+    void testReferences(Object[][] raw_coordinates, Object[][] expected_raw_coordinates, String message) {
+
+        if (expected_raw_coordinates == null) {
+            expected_raw_coordinates = raw_coordinates;
+        }
 
         List<Location> expectedLocations = Arrays.stream(expected_raw_coordinates)
-                .map((raw_coords) -> getLocationFromRawCoords(raw_coords, doc.getFilename()))
+                .map((raw_coords) -> getLocationFromRawCoords(raw_coords, ((EolDocument) raw_coords[3]).getFilename()))
                 .collect(Collectors.toList());
         expectedLocations.sort((left, right) -> sortFunction(left, right));
-        for (int[] coords : expected_raw_coordinates) {
+        for (Object[] coords : raw_coordinates) {
 
-            int line = coords[0];
-            int colStart = coords[1];
-            int colEnd = coords[2];
+            int line = (int) coords[0];
+            int colStart = (int) coords[1];
+            int colEnd = (int) coords[2];
+            EolDocument doc = (EolDocument) coords[3];
 
             for (int col = colStart; col < colEnd; col++) {
 
@@ -56,74 +61,106 @@ class ReferencesTest extends TestTemplate {
 
     }
 
-    Location getLocationFromRawCoords(int[] coords, String uri) {
+    Location getLocationFromRawCoords(Object[] coords, String uri) {
 
         return new Location(uri,
                 new Range(
-                        new Position(coords[0], coords[1]),
-                        new Position(coords[0], coords[2])));
+                        new Position((int) coords[0], (int) coords[1]),
+                        new Position((int) coords[0], (int) coords[2])));
     }
 
     @Test
     void testOperationArgumentReferences() {
 
-        int[][] raw_coordinates = {
-                { 17, 23, 28 },
-                { 39, 36, 41 },
-                { 42, 46, 51 }
+        Object[][] raw_coordinates = {
+                { 17, 23, 28, document2 },
+                { 39, 36, 41, document2 },
+                { 42, 46, 51, document2 }
         };
 
-        testReferences(document2, raw_coordinates, null);
+        testReferences(raw_coordinates, null, null);
 
     }
 
     @Test
     void testShadowedWhileOperationArgumentReferences() {
 
-        int[][] raw_coordinates = {
-                { 21, 12, 17 },
-                { 23, 8, 13 }
+        Object[][] raw_coordinates = {
+                { 21, 12, 17, document2 },
+                { 23, 8, 13, document2 }
         };
 
-        testReferences(document2, raw_coordinates, null);
+        testReferences(raw_coordinates, null, null);
 
     }
 
     @Test
     void testShadowedIfOperationArgumentReferences() {
 
-        int[][] raw_coordinates = {
-                { 30, 12, 17 },
-                { 32, 8, 13 },
-                { 35, 12, 17 }
+        Object[][] raw_coordinates = {
+                { 30, 12, 17, document2 },
+                { 32, 8, 13, document2 },
+                { 35, 12, 17, document2 }
 
         };
 
-        testReferences(document2, raw_coordinates, null);
+        testReferences(raw_coordinates, null, null);
 
     }
 
     @Test
     void testForLoopParameterReferences() {
 
-        int[][] raw_coordinates = {
-                { 6, 5, 6 },
-                { 8, 4, 5 }
+        Object[][] raw_coordinates = {
+                { 6, 5, 6, document2 },
+                { 8, 4, 5, document2 }
         };
 
-        testReferences(document2, raw_coordinates, null);
+        testReferences(raw_coordinates, null, null);
 
     }
 
     @Test
     void testVariableInOperationReferences() {
 
-        int[][] raw_coordinates = {
-                { 39, 8, 16 },
-                { 40, 30, 38 }
+        Object[][] raw_coordinates = {
+                { 39, 8, 16, document2 },
+                { 40, 30, 38, document2 }
         };
 
-        testReferences(document2, raw_coordinates, null);
+        testReferences(raw_coordinates, null, null);
+
+    }
+
+    @Test
+    void testOperationReferences() {
+
+        Object[][] raw_coordinates = {
+                { 8, 6, 19, document2 },
+                { 11, 17, 28, document2 },
+                { 42, 17, 30, document2 },
+                { 42, 52, 65, document2 }
+
+        };
+
+        testReferences(raw_coordinates, null, null);
+
+    }
+
+    @Test
+    void testOperationReferencesAcrossFiles() {
+
+        Object[][] raw_coordinates = {
+                { 13, 9, 15, document },
+                { 17, 17, 22, document2 },
+        };
+
+        Object[][] expected_raw_coordinates = {
+                { 13, 9, 20, document },
+                { 17, 17, 22, document2 },
+        };
+
+        testReferences(raw_coordinates, expected_raw_coordinates, null);
 
     }
 
