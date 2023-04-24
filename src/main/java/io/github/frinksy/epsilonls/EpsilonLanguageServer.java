@@ -52,6 +52,7 @@ public class EpsilonLanguageServer implements LanguageServer, LanguageClientAwar
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setReferencesProvider(Boolean.TRUE);
         res.getCapabilities().setDefinitionProvider(Boolean.TRUE);
+        res.getCapabilities().setDocumentHighlightProvider(Boolean.TRUE);
 
         DiagnosticRegistrationOptions diagnosticRegistrationOptions = new DiagnosticRegistrationOptions();
         List<DocumentFilter> documentSelector = new ArrayList<>();

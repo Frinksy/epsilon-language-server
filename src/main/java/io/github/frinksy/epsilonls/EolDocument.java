@@ -7,6 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.eclipse.epsilon.common.module.ModuleElement;
 import org.eclipse.epsilon.common.module.ModuleMarker;
@@ -20,6 +22,7 @@ import org.eclipse.epsilon.eol.dom.StatementBlock;
 import org.eclipse.epsilon.eol.staticanalyser.EolStaticAnalyser;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.DiagnosticSeverity;
+import org.eclipse.lsp4j.DocumentHighlight;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.MarkupContent;
@@ -298,6 +301,16 @@ public class EolDocument extends EpsilonDocument implements DiagnosableDocument,
         textService.addAllWorkspaceSourceFiles();
 
         return EolReferences.getReferences(resolvedModule, textService.getEpsilonDocuments());
+    }
+
+    @Override
+    public List<DocumentHighlight> getDocumentHighlights(Position position) {
+
+        ModuleElement resolvedModule = getModuleElementAtPosition(eolModule, position);
+
+        // Just return references in the current file.
+        return EolReferences.getReferences(resolvedModule, null).stream()
+                .map(location -> new DocumentHighlight(location.getRange())).collect(Collectors.toList());
     }
 
 }

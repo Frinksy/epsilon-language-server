@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,6 +24,8 @@ import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentDiagnosticParams;
 import org.eclipse.lsp4j.DocumentDiagnosticReport;
+import org.eclipse.lsp4j.DocumentHighlight;
+import org.eclipse.lsp4j.DocumentHighlightParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
@@ -208,6 +211,21 @@ public class EpsilonLanguageTextDocumentService implements TextDocumentService {
 
         return CompletableFuture.supplyAsync(() -> locations);
 
+    }
+
+    @Override
+    public CompletableFuture<List<? extends DocumentHighlight>> documentHighlight(DocumentHighlightParams params) {
+
+        EpsilonDocument doc = this.documents.get(params.getTextDocument().getUri());
+
+        if (doc instanceof NavigatableDocument) {
+            NavigatableDocument document = (NavigatableDocument) doc;
+
+            return CompletableFuture.supplyAsync(
+                    () -> document.getDocumentHighlights(params.getPosition()));
+        }
+
+        return CompletableFuture.supplyAsync(() -> Collections.emptyList());
     }
 
     public void addSourceFile(Path sourceFilePath, Class<? extends EpsilonDocument> documentClass) {
